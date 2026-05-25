@@ -47,9 +47,6 @@ dependencies {
     // Used for testing the fluid system
     modRuntimeOnly "RebornCore:RebornCore-${project.fabric_reborncore_version}"
     modRuntimeOnly "TechReborn:TechReborn-${project.fabric_techreborn_version}"
-    // Used for parsing the config file
-    depend("blue.endless:jankson:${project.jankson_version}")
-
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) {
         transitive = false

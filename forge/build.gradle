@@ -19,8 +19,6 @@ dependencies {
     forge "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
     compileOnly("org.jetbrains:annotations:${project.annotations_version}")
-    forgeDependencies(implementation("blue.endless:jankson:${project.jankson_version}"))
-    shadowCommon("blue.endless:jankson:${project.jankson_version}")
     modImplementation "dev.architectury:architectury-forge:${project.architectury_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
@@ -39,9 +37,7 @@ processResources {
 
 shadowJar {
     relocate "hardcorequesting.common", "hardcorequesting.common.forge"
-    relocate "blue.endless.jankson", "hardcorequesting.common.forge.blue.endless.jankson"
-
-    configurations = [project.configurations.shadowCommon]
+configurations = [project.configurations.shadowCommon]
     archiveClassifier = "dev-shadow"
 }
 

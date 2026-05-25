@@ -1,0 +1,179 @@
+plugins {
+    id 'net.neoforged.moddev' version '2.0.107'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+version = "1.21.1-${rootProject.mod_version}"
+base {
+    archivesName = rootProject.archives_base_name
+}
+
+// Include sources from the common module directly via filesystem paths.
+// Using paths (not a project reference) so this subproject can be configured
+// alone without :common being included (i.e. when platform=neoforge).
+sourceSets.main {
+    java.srcDirs      += rootProject.file('common/src/main/java')
+    resources.srcDirs += rootProject.file('common/src/main/resources')
+}
+
+// ── Local sibling project paths ────────────────────────────────────────────────
+// Paths to local sibling projects — supply via -P flags or gradle.properties.
+// When absent the build falls back to Maven artifacts.
+def minecoloniesDir  = findProperty('minecoloniesProjectDir')
+def tfcDir           = findProperty('tfcProjectDir')
+def tfcCompatDir     = findProperty('tfcMinecolCompatProjectDir')
+
+def mcLibsDir     = minecoloniesDir ? project.file("${minecoloniesDir}/build/libs")    : null
+def tfcLibsDir    = tfcDir          ? project.file("${tfcDir}/build/libs")             : null
+def compatLibsDir = tfcCompatDir    ? project.file("${tfcCompatDir}/build/libs")       : null
+
+// Collect mod jars from each sibling project's build/libs directory.
+def collectJars = { File dir, List<String> excludeTokens ->
+    dir?.exists() ? (dir.listFiles()?.findAll { f ->
+        f.name.endsWith('.jar') && excludeTokens.every { !f.name.contains(it) }
+    } ?: []) : []
+}
+
+def mcJarList     = collectJars(mcLibsDir,     ['-sources', '-javadoc', '-slim', '-api'])
+def tfcJarList    = collectJars(tfcLibsDir,    ['-sources', '-javadoc'])
+def compatJarList = collectJars(compatLibsDir, ['-sources', '-javadoc'])
+def mcJars        = files(mcJarList)
+def tfcJars       = files(tfcJarList)
+def compatJars    = files(compatJarList)
+
+if (minecoloniesDir && mcJarList.isEmpty())
+    logger.lifecycle('[HQM-NeoForge] MineColonies local build not found in specified path — companion mods will still be loaded.')
+if (tfcDir && tfcJarList.isEmpty())
+    logger.lifecycle('[HQM-NeoForge] TerraFirmaCraft local build not found in specified path — companion mods will still be loaded.')
+if (tfcCompatDir && compatJarList.isEmpty())
+    logger.lifecycle('[HQM-NeoForge] tfc-minecol-compat local build not found — skipping (optional runtime dep).')
+
+// ── Companion-version resolution ──────────────────────────────────────────────
+// Read companion-mod versions from minecolonies/gradle.properties so the run
+// client/server always use matching dependency versions.
+// Falls back to this project's own gradle.properties when that file is absent.
+def mcPropsFile    = minecoloniesDir ? project.file("${minecoloniesDir}/gradle.properties") : null
+def mcSiblingProps = new Properties()
+if (mcPropsFile?.exists()) {
+    mcPropsFile.withInputStream { mcSiblingProps.load(it) }
+}
+def resolveVersion = { String key ->
+    (mcSiblingProps.getProperty(key) ?: project.findProperty(key)) as String
+}
+
+// ── Runtime-companion configuration ───────────────────────────────────────────
+// Holds jars that must be present in the game's mods/ folder at runtime but are
+// not part of the compile classpath and not published as dependencies of this mod.
+configurations {
+    runtimeMods {
+        canBeConsumed = false
+        canBeResolved = true
+        transitive    = false
+    }
+}
+
+// Sync tasks copy all runtime mod jars into the game directory before each run.
+def syncClientMods = tasks.register('syncClientMods', Sync) {
+    from mcJars, tfcJars, compatJars, configurations.runtimeMods
+    into project.file('run/client/mods')
+}
+
+def syncServerMods = tasks.register('syncServerMods', Sync) {
+    from mcJars, tfcJars, compatJars, configurations.runtimeMods
+    into project.file('run/server/mods')
+}
+
+repositories {
+    maven { url = 'https://maven.architectury.dev/' }
+    maven { url = 'https://maven.fabricmc.net/' }           // fabric-loader annotation stubs
+    maven { url = 'https://ldtteam.jfrog.io/ldtteam/modding/' }
+    maven { url = 'https://maven.dries007.net/' }
+    maven { url = 'https://maven.blamejared.com' }
+    maven { url = 'https://api.modrinth.com/maven' }
+    maven { url = "https://nexus.resourcefulbees.com/repository/maven-public/" }
+    mavenLocal()
+}
+
+neoForge {
+    version = rootProject.neoForgeVersion
+
+    runs {
+        configureEach {
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+        client {
+            client()
+            gameDirectory = project.file('run/client')
+            taskBefore syncClientMods
+        }
+        server {
+            server()
+            gameDirectory = project.file('run/server')
+            programArgument '--nogui'
+            taskBefore syncServerMods
+        }
+    }
+
+    mods {
+        create('hqm') {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    // ── Architectury API ───────────────────────────────────────────────────────
+    // architectury-neoforge provides dev.architectury.* used in the common sources.
+    compileOnly "dev.architectury:architectury-neoforge:${rootProject.neoforge_architectury_version}"
+    runtimeMods "dev.architectury:architectury-neoforge:${rootProject.neoforge_architectury_version}"
+    // fabric-loader provides net.fabricmc.api.Environment / EnvType annotation stubs.
+    // Architectury Loom injects these automatically; with moddev we add them explicitly.
+    compileOnly "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+
+    // ── MineColonies (runtime only — not a compile dependency of HQM) ──────────
+    // Only loaded when a local path is provided via -PminecoloniesProjectDir=...
+    // The companion mods (structurize, blockui, etc.) are required alongside it.
+    if (minecoloniesDir) {
+        if (!mcJarList.isEmpty()) {
+            runtimeMods mcJars
+        }
+        runtimeMods "com.ldtteam:structurize:${resolveVersion('structurize_version')}"
+        runtimeMods "com.ldtteam:blockui:${resolveVersion('blockUI_version')}"
+        runtimeMods "com.ldtteam:domum-ornamentum:${resolveVersion('domumOrnamentumVersion')}"
+        runtimeMods "com.ldtteam:multipiston:${resolveVersion('multiPistonVersion')}"
+    }
+
+
+
+    // ── TerraFirmaCraft (runtime only) ─────────────────────────────────────────
+    // Only loaded when a local path is provided via -PtfcProjectDir=...
+    // Patchouli is TFC's required companion mod; keep patchouliVersion in sync
+    // with val patchouliVersion in TerraFirmaCraft/build.gradle.kts.
+
+    if (tfcDir) {
+        if (!tfcJarList.isEmpty()) {
+            runtimeMods tfcJars
+        }
+        runtimeMods "vazkii.patchouli:Patchouli:${findProperty('patchouliVersion')}"
+    }
+
+    // ── Just Enough Items ─────────────────────────────────────────────────────
+    runtimeMods "mezz.jei:jei-1.21.1-neoforge:${rootProject.jei_version}"
+
+    // ── tfc-minecol-compat (runtime only, local builds only) ──────────────────
+    if (!compatJarList.isEmpty()) {
+        runtimeMods compatJars
+    }
+}
+
+tasks.withType(ProcessResources).configureEach {
+    def replaceProperties = [
+        mod_version       : project.version,
+        minecraft_version : '1.21.1',
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}

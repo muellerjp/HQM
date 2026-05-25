@@ -1,0 +1,34 @@
+modLoader = "javafml"
+loaderVersion = "[3,]"
+license = "GNU-3.0"
+logoFile = "icon.png"
+authors = "Vswe, Lorddusk, Newcastlegeek, Way2muchnoise, McJty, canitzp, ArclightTW, shedaniel, kirderf1, CodexAdrian., Mr.101Freaking"
+
+[[mods]]
+    modId = "hardcorequesting"
+    version = "${mod_version}"
+    displayName = "Hardcore Questing Mode"
+    description = '''
+This mod will add Hardcore mode with extra lives. If you use up your lives, your world will be deleted or you will be banned.
+'''
+
+[[dependencies.hardcorequesting]]
+    modId = "neoforge"
+    type = "required"
+    versionRange = "[21.1,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.hardcorequesting]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "[${minecraft_version},)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.hardcorequesting]]
+    modId = "architectury"
+    type = "required"
+    versionRange = "[13,)"
+    ordering = "NONE"
+    side = "BOTH"

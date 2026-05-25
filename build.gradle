@@ -7,7 +7,8 @@ architectury {
     minecraft = rootProject.minecraft_version
 }
 
-subprojects {
+// neoforge uses net.neoforged.moddev instead of architectury-loom
+configure(subprojects.findAll { it.name != 'neoforge' }) {
     apply plugin: "dev.architectury.loom"
 
     loom {
@@ -22,18 +23,40 @@ subprojects {
 
 allprojects {
     apply plugin: "java"
-    apply plugin: "architectury-plugin"
 
-    archivesBaseName = project.archives_base_name
-    version = minecraft_version + "-" + project.mod_version
     group = project.maven_group
 
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
-        options.release = 17
+        // neoforge targets Java 21; its own build.gradle sets the toolchain.
+        // fabric and forge target Java 17.
+        if (project.name != 'neoforge') {
+            options.release = 17
+        }
     }
 
     java {
         withSourcesJar()
     }
+}
+
+configure(allprojects.findAll { it.name != 'neoforge' }) {
+    apply plugin: "architectury-plugin"
+
+    archivesBaseName = project.archives_base_name
+    version = minecraft_version + "-" + project.mod_version
+}
+
+// Convenience root-level tasks that delegate to the active platform.
+// Set platform in gradle.properties or pass -Pplatform=<fabric|forge|neoforge|all>.
+// When platform=all, runClient defaults to neoforge.
+def activePlatform = findProperty('platform') ?: 'neoforge'
+def runTarget = activePlatform == 'all' ? 'neoforge' : activePlatform
+
+tasks.register('runClient') {
+    dependsOn ":${runTarget}:runClient"
+}
+
+tasks.register('runServer') {
+    dependsOn ":${runTarget}:runServer"
 }

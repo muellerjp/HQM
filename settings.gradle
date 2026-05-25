@@ -7,12 +7,21 @@ pluginManagement {
         }
         maven { url "https://maven.architectury.dev/" }
         maven { url "https://maven.minecraftforge.net/" }
+        maven { url = 'https://maven.neoforged.net/releases' }
         gradlePluginPortal()
     }
 }
 
 rootProject.name="HQM"
 
-include("common")
-include("fabric")
-include("forge")
+// Read the active platform from -Pplatform=<value> or gradle.properties (default: neoforge).
+def activePlatform = providers.gradleProperty('platform').getOrElse('neoforge')
+
+// common is the shared Architectury module required by fabric and forge only.
+// neoforge includes common sources via direct file paths and does not need it as a project.
+if (activePlatform == 'all' || activePlatform == 'fabric' || activePlatform == 'forge') {
+    include("common")
+}
+if (activePlatform == 'all' || activePlatform == 'fabric')   include("fabric")
+if (activePlatform == 'all' || activePlatform == 'forge')    include("forge")
+if (activePlatform == 'all' || activePlatform == 'neoforge') include("neoforge")
