@@ -12,6 +12,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +45,7 @@ public class TrackerBlockEntity extends BlockEntity {
     
     @Environment(EnvType.CLIENT)
     public static void openInterface(Player player, BlockPos pos, UUID questId, int radius, TrackerType type) {
-        TrackerBlockEntity tracker = getTracker(player.level, pos);
+        TrackerBlockEntity tracker = getTracker(player.level(), pos);
         if (tracker != null) {
             tracker.questId = questId;
             tracker.quest = null;
@@ -54,9 +55,9 @@ public class TrackerBlockEntity extends BlockEntity {
             Minecraft.getInstance().setScreen(gui);
         }
     }
-    
+
     public static void saveToServer(Player player, BlockPos pos, int radius, TrackerType type) {
-        TrackerBlockEntity tracker = getTracker(player.level, pos);
+        TrackerBlockEntity tracker = getTracker(player.level(), pos);
         if (Quest.canQuestsBeEdited() && tracker != null) {
             tracker.radius = radius;
             tracker.type = type;
@@ -64,18 +65,18 @@ public class TrackerBlockEntity extends BlockEntity {
     }
     
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
-        
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+        super.loadAdditional(compound, registries);
+
         questId = compound.getUUID(NBT_QUEST);
-        
+
         radius = compound.getInt(NBT_RADIUS);
         type = TrackerType.values()[compound.getByte(NBT_TYPE)];
     }
-    
+
     @Override
-    protected void saveAdditional(CompoundTag compoundTag) {
-        super.saveAdditional(compoundTag);
+    protected void saveAdditional(CompoundTag compoundTag, HolderLookup.Provider registries) {
+        super.saveAdditional(compoundTag, registries);
         
         if (quest != null) {
             compoundTag.putUUID(NBT_QUEST, quest.getQuestId());

@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.edit;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.widget.ArrowSelectionHelper;
 import hardcorequesting.common.client.interfaces.widget.LargeButton;
@@ -109,22 +109,22 @@ public class ReputationRewardMenu extends GuiEditMenu {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-        
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
         if (isValid()) {
             for (int i = 0; i < rewards.size(); i++) {
                 FormattedText str = rewards.get(i).getLabel();
                 boolean hover = gui.inBounds(START_X, START_Y + i * OFFSET, gui.getStringWidth(str), 9, mX, mY);
                 boolean selected = rewards.get(i).equals(selectedReward);
-                gui.drawString(matrices, str, START_X, START_Y + i * OFFSET, selected ? hover ? 0x40CC40 : 0x409040 : hover ? 0xAAAAAA : 0x404040);
+                gui.drawString(guiGraphics, str, START_X, START_Y + i * OFFSET, selected ? hover ? 0x40CC40 : 0x409040 : hover ? 0xAAAAAA : 0x404040);
             }
         } else {
             if (error == null) {
                 error = gui.getLinesFromText(Translator.translatable("hqm.repReward.noValidReps"), 0.7F, 140);
             }
-            
-            gui.drawString(matrices, error, START_X, ERROR_Y, 0.7F, 0x404040);
+
+            gui.drawString(guiGraphics, error, START_X, ERROR_Y, 0.7F, 0x404040);
         }
     }
     

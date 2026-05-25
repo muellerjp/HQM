@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic.task;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.edit.PickMobMenu;
@@ -23,14 +23,14 @@ public class KillMobsTaskGraphic extends IconTaskGraphic<KillMobsTask.Part> {
     }
     
     @Override
-    protected void drawElementText(PoseStack matrices, KillMobsTask.Part part, int index, int x, int y) {
+    protected void drawElementText(GuiGraphics guiGraphics, KillMobsTask.Part part, int index, int x, int y) {
         int killed = task.killed(index, playerId);
         if (killed == part.getCount()) {
-            gui.drawString(matrices, Translator.translatable("hqm.mobTask.allKilled").withStyle(ChatFormatting.DARK_GREEN), x, y, 0.7F, 0x404040);
+            gui.drawString(guiGraphics, Translator.translatable("hqm.mobTask.allKilled").withStyle(ChatFormatting.DARK_GREEN), x, y, 0.7F, 0x404040);
         } else {
-            gui.drawString(matrices, Translator.translatable("hqm.mobTask.partKills", killed, (100 * killed / part.getCount())), x, y, 0.7F, 0x404040);
+            gui.drawString(guiGraphics, Translator.translatable("hqm.mobTask.partKills", killed, (100 * killed / part.getCount())), x, y, 0.7F, 0x404040);
         }
-        gui.drawString(matrices, Translator.translatable("hqm.mobTask.totalKills", part.getCount()), x, y + 6, 0.7F, 0x404040);
+        gui.drawString(guiGraphics, Translator.translatable("hqm.mobTask.totalKills", part.getCount()), x, y + 6, 0.7F, 0x404040);
     }
     
     @Override

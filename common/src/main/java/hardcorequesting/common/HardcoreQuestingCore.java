@@ -1,6 +1,6 @@
 package hardcorequesting.common;
 
-import dev.architectury.registry.registries.Registries;
+import dev.architectury.registry.registries.RegistrarManager;
 import hardcorequesting.common.client.sounds.Sounds;
 import hardcorequesting.common.commands.CommandHandler;
 import hardcorequesting.common.config.HQMConfig;
@@ -81,8 +81,8 @@ public class HardcoreQuestingCore {
             EventTrigger.instance().onLivingDeath(livingEntity, source);
         });
         
-        Registries registries = Registries.get(HardcoreQuestingCore.ID);
-        registries.<TaskType<?>>builder(TaskType.REGISTRY_KEY.location()).syncToClients().build();
+        RegistrarManager registrarManager = RegistrarManager.get(HardcoreQuestingCore.ID);
+        registrarManager.<TaskType<?>>builder(TaskType.REGISTRY_KEY.location()).syncToClients().build();
         TaskType.REGISTER.register();
     }
 }

@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic.task;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.edit.PickItemMenu;
@@ -29,8 +29,8 @@ public abstract class IconTaskGraphic<Part extends IconLayoutTask.Part> extends 
         this.task = task;
     }
     
-    protected abstract void drawElementText(PoseStack matrices, Part part, int id, int x, int y);
-    
+    protected abstract void drawElementText(GuiGraphics guiGraphics, Part part, int id, int x, int y);
+
     @Override
     protected List<Positioned<Part>> positionParts(List<Part> parts) {
         List<Positioned<Part>> list = new ArrayList<>(parts.size());
@@ -42,15 +42,15 @@ public abstract class IconTaskGraphic<Part extends IconLayoutTask.Part> extends 
         }
         return list;
     }
-    
+
     @Override
-    protected void drawPart(PoseStack matrices, Part part, int id, int x, int y, int mX, int mY) {
+    protected void drawPart(GuiGraphics guiGraphics, Part part, int id, int x, int y, int mX, int mY) {
         int textX = x + X_TEXT_OFFSET, textY = y + Y_TEXT_OFFSET;
-        part.getIconStack().ifLeft(itemStack -> gui.drawItemStack(matrices, itemStack, x, y, mX, mY, false))
-                .ifRight(fluidStack -> gui.drawFluid(fluidStack, matrices, x, y, mX, mY));
-        
-        gui.drawString(matrices, part.getName(), textX, textY, 0x404040);
-        drawElementText(matrices, part, id, textX + X_TEXT_INDENT, textY + 9);
+        part.getIconStack().ifLeft(itemStack -> gui.drawItemStack(guiGraphics, itemStack, x, y, mX, mY, false))
+                .ifRight(fluidStack -> gui.drawFluid(fluidStack, guiGraphics, x, y, mX, mY));
+
+        gui.drawString(guiGraphics, part.getName(), textX, textY, 0x404040);
+        drawElementText(guiGraphics, part, id, textX + X_TEXT_INDENT, textY + 9);
     }
     
     @Override

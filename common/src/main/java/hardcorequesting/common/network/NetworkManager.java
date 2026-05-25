@@ -5,7 +5,6 @@ import hardcorequesting.common.HardcoreQuestingCore;
 import hardcorequesting.common.network.message.*;
 import hardcorequesting.common.tileentity.IBlockSync;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -22,35 +21,35 @@ import java.util.Map;
 
 public class NetworkManager {
     
-    private static final ResourceLocation S2C = new ResourceLocation(HardcoreQuestingCore.ID, "s2c");
-    private static final ResourceLocation C2S = new ResourceLocation(HardcoreQuestingCore.ID, "c2s");
+    private static final ResourceLocation S2C = ResourceLocation.fromNamespaceAndPath(HardcoreQuestingCore.ID, "s2c");
+    private static final ResourceLocation C2S = ResourceLocation.fromNamespaceAndPath(HardcoreQuestingCore.ID, "c2s");
     private static int id = 0;
     private static final Map<Class<? extends IMessage>, Tuple<Class<? extends IMessageHandler>, Integer>> PACKET_HANDLERS = new HashMap<>();
     
     public static void init() {
-        registerMessage(OpenGuiMessage.Handler.class, OpenGuiMessage.class, id++, EnvType.CLIENT);
-        
-        registerMessage(QuestLineSyncMessage.Handler.class, QuestLineSyncMessage.class, id++, EnvType.CLIENT);
-        registerMessage(PlayerDataSyncMessage.Handler.class, PlayerDataSyncMessage.class, id++, EnvType.CLIENT);
-        
-        registerMessage(TeamStatsMessage.Handler.class, TeamStatsMessage.class, id++, EnvType.CLIENT);
-        registerMessage(TeamErrorMessage.Handler.class, TeamErrorMessage.class, id++, EnvType.CLIENT);
-        registerMessage(QuestDataUpdateMessage.Handler.class, QuestDataUpdateMessage.class, id++, EnvType.CLIENT);
-        registerMessage(DeathStatsMessage.Handler.class, DeathStatsMessage.class, id++, EnvType.CLIENT);
-        registerMessage(TeamUpdateMessage.Handler.class, TeamUpdateMessage.class, id++, EnvType.CLIENT);
-        registerMessage(SoundMessage.Handler.class, SoundMessage.class, id++, EnvType.CLIENT);
-        registerMessage(LivesUpdate.Handler.class, LivesUpdate.class, id++, EnvType.CLIENT);
-        
-        registerMessage(BlockSyncMessageClient.Handler.class, BlockSyncMessageClient.class, id++, EnvType.CLIENT);
-        registerMessage(BlockSyncMessage.Handler.class, BlockSyncMessage.class, id++, EnvType.SERVER);
-        
-        registerMessage(TeamMessage.Handler.class, TeamMessage.class, id++, EnvType.SERVER);
-        registerMessage(ClientUpdateMessage.Handler.class, ClientUpdateMessage.class, id++, EnvType.SERVER);
-        registerMessage(OpActionMessage.Handler.class, OpActionMessage.class, id++, EnvType.SERVER);
-        
-        registerMessage(SyncableTileMessage.class, SyncableTileMessage.class, id++, EnvType.CLIENT);
-        registerMessage(GeneralUpdateMessage.class, GeneralUpdateMessage.class, id++, EnvType.CLIENT);
-        registerMessage(GeneralUpdateMessage.class, GeneralUpdateMessage.class, id++, EnvType.SERVER);
+        registerMessage(OpenGuiMessage.Handler.class, OpenGuiMessage.class, id++);
+
+        registerMessage(QuestLineSyncMessage.Handler.class, QuestLineSyncMessage.class, id++);
+        registerMessage(PlayerDataSyncMessage.Handler.class, PlayerDataSyncMessage.class, id++);
+
+        registerMessage(TeamStatsMessage.Handler.class, TeamStatsMessage.class, id++);
+        registerMessage(TeamErrorMessage.Handler.class, TeamErrorMessage.class, id++);
+        registerMessage(QuestDataUpdateMessage.Handler.class, QuestDataUpdateMessage.class, id++);
+        registerMessage(DeathStatsMessage.Handler.class, DeathStatsMessage.class, id++);
+        registerMessage(TeamUpdateMessage.Handler.class, TeamUpdateMessage.class, id++);
+        registerMessage(SoundMessage.Handler.class, SoundMessage.class, id++);
+        registerMessage(LivesUpdate.Handler.class, LivesUpdate.class, id++);
+
+        registerMessage(BlockSyncMessageClient.Handler.class, BlockSyncMessageClient.class, id++);
+        registerMessage(BlockSyncMessage.Handler.class, BlockSyncMessage.class, id++);
+
+        registerMessage(TeamMessage.Handler.class, TeamMessage.class, id++);
+        registerMessage(ClientUpdateMessage.Handler.class, ClientUpdateMessage.class, id++);
+        registerMessage(OpActionMessage.Handler.class, OpActionMessage.class, id++);
+
+        registerMessage(SyncableTileMessage.class, SyncableTileMessage.class, id++);
+        registerMessage(GeneralUpdateMessage.class, GeneralUpdateMessage.class, id++);
+        registerMessage(GeneralUpdateMessage.class, GeneralUpdateMessage.class, id++);
         
         if (HardcoreQuestingCore.platform.isClient()) {
             HardcoreQuestingCore.platform.getNetworkManager().registerS2CHandler(S2C, (packetContext, packetByteBuf) -> {
@@ -90,7 +89,7 @@ public class NetworkManager {
         });
     }
     
-    private static void registerMessage(Class<? extends IMessageHandler> handlerClass, Class<? extends IMessage> messageClass, int id, EnvType envType) {
+    private static void registerMessage(Class<? extends IMessageHandler> handlerClass, Class<? extends IMessage> messageClass, int id) {
         PACKET_HANDLERS.put(messageClass, new Tuple<>(handlerClass, id));
     }
     

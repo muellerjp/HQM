@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.edit;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.widget.AbstractCheckBox;
 import hardcorequesting.common.client.interfaces.widget.LargeButton;
@@ -115,11 +115,11 @@ public class WrappedTextMenu extends AbstractTextMenu {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-        
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
         if (this.translatedLines != null) {
-            this.gui.drawString(matrices, this.translatedLines, 20, 100, 1F, MultilineTextBox.DEFAULT_TEXT_COLOR);
+            this.gui.drawString(guiGraphics, this.translatedLines, 20, 100, 1F, MultilineTextBox.DEFAULT_TEXT_COLOR);
         }
     }
     

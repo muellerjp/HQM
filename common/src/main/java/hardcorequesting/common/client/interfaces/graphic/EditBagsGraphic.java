@@ -1,7 +1,7 @@
 package hardcorequesting.common.client.interfaces.graphic;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.bag.*;
 import hardcorequesting.common.client.BookPage;
 import hardcorequesting.common.client.EditMode;
@@ -88,8 +88,8 @@ public class EditBagsGraphic extends EditableGraphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
         
         int yPos = TIERS_Y;
         for (GroupTier groupTier : tierScroll.getVisibleEntries()) {
@@ -102,14 +102,14 @@ public class EditBagsGraphic extends EditableGraphic {
                 color |= 0xBB << 24;
                 RenderSystem.enableBlend();
             }
-            gui.drawString(matrices, str, TIERS_X, yPos, color);
+            gui.drawString(guiGraphics,str, TIERS_X, yPos, color);
             if (inBounds) {
                 RenderSystem.disableBlend();
             }
             
             for (int j = 0; j < BagTier.values().length; j++) {
                 BagTier bagTier = BagTier.values()[j];
-                gui.drawCenteredString(matrices, Translator.text(groupTier.getWeights()[j] + "").withStyle(bagTier.getColor()),
+                gui.drawCenteredString(guiGraphics,Translator.text(groupTier.getWeights()[j] + "").withStyle(bagTier.getColor()),
                         TIERS_X + TIERS_SECOND_LINE_X + j * WEIGHT_SPACING,
                         yPos + TIERS_SECOND_LINE_Y, 0.7F,
                         WEIGHT_SPACING, 0, 0x404040);
@@ -135,12 +135,12 @@ public class EditBagsGraphic extends EditableGraphic {
                 }
             }
             
-            gui.drawString(matrices, str, GROUPS_X, yPos, color);
+            gui.drawString(guiGraphics,str, GROUPS_X, yPos, color);
             if (inBounds || selected) {
                 RenderSystem.disableBlend();
             }
             
-            gui.drawString(matrices, Translator.translatable("hqm.questBook.items", group.getItems().size()),
+            gui.drawString(guiGraphics,Translator.translatable("hqm.questBook.items", group.getItems().size()),
                     GROUPS_X + GROUPS_SECOND_LINE_X,
                     yPos + GROUPS_SECOND_LINE_Y,
                     0.7F, 0x404040);

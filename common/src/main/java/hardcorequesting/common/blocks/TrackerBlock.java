@@ -1,5 +1,6 @@
 package hardcorequesting.common.blocks;
 
+import com.mojang.serialization.MapCodec;
 import hardcorequesting.common.items.ModItems;
 import hardcorequesting.common.quests.Quest;
 import hardcorequesting.common.tileentity.TrackerBlockEntity;
@@ -9,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -23,15 +25,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 public class TrackerBlock extends BaseEntityBlock {
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
-    
+    public static final MapCodec<TrackerBlock> CODEC = MapCodec.unit(TrackerBlock::new);
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     public TrackerBlock() {
-        super(BlockBehaviour.Properties.of(Material.WOOD).strength(10.0F));
+        super(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(10.0F));
         registerDefaultState(this.stateDefinition.any().setValue(POWER, 0));
     }
     
@@ -52,42 +60,42 @@ public class TrackerBlock extends BaseEntityBlock {
         return createTickerHelper(blockEntityType, ModBlocks.typeTracker.get(), TrackerBlockEntity::tick);
     }
     
-    @SuppressWarnings("deprecation")
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (player != null) {
-            if (!player.getItemInHand(hand).isEmpty() && player.getItemInHand(hand).getItem() == ModItems.book.get()) {
-                if (!world.isClientSide) {
-                    BlockEntity tile = world.getBlockEntity(pos);
-                    if (tile instanceof TrackerBlockEntity) {
-                        if (!Quest.canQuestsBeEdited()) {
-                            player.sendSystemMessage(Translator.translatable("tile.hqm:quest_tracker.offLimit"));
+    protected ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (stack.getItem() == ModItems.book.get()) {
+            if (!world.isClientSide) {
+                BlockEntity tile = world.getBlockEntity(pos);
+                if (tile instanceof TrackerBlockEntity) {
+                    if (!Quest.canQuestsBeEdited()) {
+                        player.sendSystemMessage(Translator.translatable("tile.hqm:quest_tracker.offLimit"));
+                    } else {
+                        ((TrackerBlockEntity) tile).setCurrentQuest();
+                        if (((TrackerBlockEntity) tile).getCurrentQuest() != null) {
+                            player.sendSystemMessage(Translator.translatable("tile.hqm:quest_tracker.bindTo", ((TrackerBlockEntity) tile).getCurrentQuest().getName()));
                         } else {
-                            ((TrackerBlockEntity) tile).setCurrentQuest();
-                            if (((TrackerBlockEntity) tile).getCurrentQuest() != null) {
-                                player.sendSystemMessage(Translator.translatable("tile.hqm:quest_tracker.bindTo", ((TrackerBlockEntity) tile).getCurrentQuest().getName()));
-                            } else {
-                                player.sendSystemMessage(Translator.translatable("hqm.message.noTaskSelected"));
-                            }
-                        }
-                        
-                    }
-                }
-            } else {
-                if (!world.isClientSide) {
-                    BlockEntity tile = world.getBlockEntity(pos);
-                    if (tile instanceof TrackerBlockEntity) {
-                        if (!Quest.canQuestsBeEdited()) {
-                            player.sendSystemMessage(Translator.translatable("tile.hqm:quest_tracker.offLimit"));
-                        } else {
-                            ((TrackerBlockEntity) tile).openInterface(player);
+                            player.sendSystemMessage(Translator.translatable("hqm.message.noTaskSelected"));
                         }
                     }
                 }
             }
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
-        return InteractionResult.CONSUME;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!world.isClientSide) {
+            BlockEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof TrackerBlockEntity) {
+                if (!Quest.canQuestsBeEdited()) {
+                    player.sendSystemMessage(Translator.translatable("tile.hqm:quest_tracker.offLimit"));
+                } else {
+                    ((TrackerBlockEntity) tile).openInterface(player);
+                }
+            }
+        }
+        return InteractionResult.SUCCESS;
     }
     
     @SuppressWarnings("deprecation")

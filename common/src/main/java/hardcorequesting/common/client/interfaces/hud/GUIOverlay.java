@@ -5,10 +5,9 @@ import hardcorequesting.common.quests.QuestingDataManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 
 @Environment(EnvType.CLIENT)
-public class GUIOverlay extends GuiComponent {
+public class GUIOverlay {
     
     private Minecraft mc;
     

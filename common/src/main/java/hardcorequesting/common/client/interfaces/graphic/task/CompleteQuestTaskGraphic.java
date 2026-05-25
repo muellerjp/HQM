@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic.task;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.quests.Quest;
@@ -46,19 +46,19 @@ public class CompleteQuestTaskGraphic extends ListTaskGraphic<CompleteQuestTask.
     }
     
     @Override
-    protected void drawPart(PoseStack matrices, CompleteQuestTask.Part part, int id, int x, int y, int mX, int mY) {
-        part.getIconStack().ifLeft(itemStack -> gui.drawItemStack(matrices, itemStack, x, y, mX, mY, false))
-                .ifRight(fluidStack -> gui.drawFluid(fluidStack, matrices, x, y, mX, mY));
-        
+    protected void drawPart(GuiGraphics guiGraphics, CompleteQuestTask.Part part, int id, int x, int y, int mX, int mY) {
+        part.getIconStack().ifLeft(itemStack -> gui.drawItemStack(guiGraphics, itemStack, x, y, mX, mY, false))
+                .ifRight(fluidStack -> gui.drawFluid(fluidStack, guiGraphics, x, y, mX, mY));
+
         if (part.getQuest() != null) {
-            gui.drawString(matrices, part.getName(), x + X_TEXT_OFFSET, y + Y_TEXT_OFFSET, 0x404040);
+            gui.drawString(guiGraphics, part.getName(), x + X_TEXT_OFFSET, y + Y_TEXT_OFFSET, 0x404040);
             if (task.completed(id, playerId)) {
-                gui.drawString(matrices, Translator.translatable("hqm.completedMenu.visited").withStyle(ChatFormatting.DARK_GREEN), x + X_TEXT_OFFSET + X_TEXT_INDENT, y + Y_TEXT_OFFSET + 9, 0.7F, 0x404040);
+                gui.drawString(guiGraphics, Translator.translatable("hqm.completedMenu.visited").withStyle(ChatFormatting.DARK_GREEN), x + X_TEXT_OFFSET + X_TEXT_INDENT, y + Y_TEXT_OFFSET + 9, 0.7F, 0x404040);
             }
         } else {
-            gui.drawString(matrices, Translator.translatable("hqm.completionTask.firstline").withStyle(ChatFormatting.DARK_RED), x + X_TEXT_OFFSET, y + Y_TEXT_OFFSET, 0x404040);
-            gui.drawString(matrices, Translator.translatable("hqm.completionTask.secondline").withStyle(ChatFormatting.DARK_RED), x + X_TEXT_OFFSET, y + Y_TEXT_OFFSET + 9, 0x404040);
-            gui.drawString(matrices, Translator.translatable("hqm.completionTask.thirdline").withStyle(ChatFormatting.DARK_RED), x + X_TEXT_OFFSET, y + Y_TEXT_OFFSET + 18, 0x404040);
+            gui.drawString(guiGraphics, Translator.translatable("hqm.completionTask.firstline").withStyle(ChatFormatting.DARK_RED), x + X_TEXT_OFFSET, y + Y_TEXT_OFFSET, 0x404040);
+            gui.drawString(guiGraphics, Translator.translatable("hqm.completionTask.secondline").withStyle(ChatFormatting.DARK_RED), x + X_TEXT_OFFSET, y + Y_TEXT_OFFSET + 9, 0x404040);
+            gui.drawString(guiGraphics, Translator.translatable("hqm.completionTask.thirdline").withStyle(ChatFormatting.DARK_RED), x + X_TEXT_OFFSET, y + Y_TEXT_OFFSET + 18, 0x404040);
         }
     }
     

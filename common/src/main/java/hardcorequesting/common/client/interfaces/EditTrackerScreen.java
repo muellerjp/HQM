@@ -1,7 +1,7 @@
 package hardcorequesting.common.client.interfaces;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.edit.GuiEditMenu;
 import hardcorequesting.common.client.interfaces.widget.ArrowSelectionHelper;
 import hardcorequesting.common.client.interfaces.widget.LargeButton;
@@ -88,36 +88,35 @@ public class EditTrackerScreen extends GuiBase {
         if (textBoxes.getTextBoxes().isEmpty()) {
             textBoxes.add(new NumberTextBox(this, 20, 130, Translator.translatable("hqm.menuTracker.radius.title"), tracker::getRadius, tracker::setRadius) {
                 @Override
-                protected void draw(PoseStack matrices, boolean selected, int mX, int mY) {
-                    super.draw(matrices, selected, mX, mY);
-            
-                    this.gui.drawString(matrices, this.gui.getLinesFromText(Translator.translatable("hqm.menuTracker.radius.desc"), 0.7F, 130), x, y + GuiEditMenu.BOX_OFFSET + TEXT_OFFSET, 0.7F, 0x404040);
+                protected void draw(GuiGraphics guiGraphics, boolean selected, int mX, int mY) {
+                    super.draw(guiGraphics, selected, mX, mY);
+
+                    this.gui.drawString(guiGraphics, this.gui.getLinesFromText(Translator.translatable("hqm.menuTracker.radius.desc"), 0.7F, 130), x, y + GuiEditMenu.BOX_OFFSET + TEXT_OFFSET, 0.7F, 0x404040);
                 }
             });
         }
     }
     
     @Override
-    public void render(PoseStack matrices, int mX0, int mY0, float f) {
+    public void render(GuiGraphics guiGraphics, int mX0, int mY0, float f) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        
-        ResourceHelper.bindResource(BG_TEXTURE);
-        drawRect(matrices, 0, 0, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-    
+
+        drawRect(guiGraphics, BG_TEXTURE, 0, 0, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+
         int mX = mX0 - left;
         int mY = mY0 - top;
         for (LargeButton button : buttons) {
-            button.render(matrices, mX, mY);
+            button.render(guiGraphics, mX, mY);
         }
-        
-        textBoxes.render(matrices, mX, mY);
-    
-        drawCenteredString(matrices, tracker.getCurrentQuest() != null ? tracker.getCurrentQuest().getName() : Translator.translatable("hqm.menuTracker.noQuest"), 0, 5, 1F, 170, 20, 0x404040);
-    
-        selectionHelper.render(matrices, mX, mY);
-    
+
+        textBoxes.render(guiGraphics, mX, mY);
+
+        drawCenteredString(guiGraphics, tracker.getCurrentQuest() != null ? tracker.getCurrentQuest().getName() : Translator.translatable("hqm.menuTracker.noQuest"), 0, 5, 1F, 170, 20, 0x404040);
+
+        selectionHelper.render(guiGraphics, mX, mY);
+
         for (LargeButton button : buttons) {
-            button.renderTooltip(matrices, mX, mY);
+            button.renderTooltip(guiGraphics, mX, mY);
         }
     }
     

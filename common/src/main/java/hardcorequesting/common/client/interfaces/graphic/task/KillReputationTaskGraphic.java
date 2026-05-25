@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic.task;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.edit.IntInputMenu;
 import hardcorequesting.common.client.interfaces.widget.LargeButton;
@@ -42,14 +42,14 @@ public class KillReputationTaskGraphic extends ReputationTaskGraphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-    
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
         int killCount = task.getKills(playerId);
         if (Quest.canQuestsBeEdited()) {
-            gui.drawString(matrices, gui.getLinesFromText(Translator.translatable("hqm.repKil.kills", killCount, Translator.player(task.getKillsRequirement())), 1F, 130), START_X, START_Y, 1F, 0x404040);
+            gui.drawString(guiGraphics, gui.getLinesFromText(Translator.translatable("hqm.repKil.kills", killCount, Translator.player(task.getKillsRequirement())), 1F, 130), START_X, START_Y, 1F, 0x404040);
         } else {
-            gui.drawString(matrices, gui.getLinesFromText(killCount == task.getKillsRequirement()
+            gui.drawString(guiGraphics, gui.getLinesFromText(killCount == task.getKillsRequirement()
                     ? Translator.translatable("hqm.repKil.killCount", Translator.player(task.getKillsRequirement())).withStyle(ChatFormatting.DARK_GREEN)
                     : Translator.translatable("hqm.repKil.killCountOutOf", killCount, Translator.player(task.getKillsRequirement())), 1F, 130), START_X, START_Y, 1F, 0x404040);
         }

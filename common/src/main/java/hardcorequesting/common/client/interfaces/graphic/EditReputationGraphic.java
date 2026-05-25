@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.edit.EditRepTierValueMenu;
@@ -88,8 +88,8 @@ public class EditReputationGraphic extends EditableGraphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
     
         if (gui.getCurrentMode() != EditMode.CREATE || selectedReputation == null) {
             int x = REPUTATION_LIST_X;
@@ -101,7 +101,7 @@ public class EditReputationGraphic extends EditableGraphic {
                 boolean hover = gui.inBounds(x, y, gui.getStringWidth(str), FONT_HEIGHT, mX, mY);
                 boolean selected = reputation.equals(selectedReputation);
                 
-                gui.drawString(matrices, str, x, y, selected ? hover ? 0x40CC40 : 0x409040 : hover ? 0xAAAAAA : 0x404040);
+                gui.drawString(guiGraphics,str, x, y, selected ? hover ? 0x40CC40 : 0x409040 : hover ? 0xAAAAAA : 0x404040);
                 
                 y += REPUTATION_OFFSET;
             }
@@ -109,7 +109,7 @@ public class EditReputationGraphic extends EditableGraphic {
         
         if (selectedReputation != null) {
             FormattedText neutralName = Translator.translatable("hqm.rep.neutral", selectedReputation.getNeutralName());
-            gui.drawString(matrices, neutralName, REPUTATION_MARKER_LIST_X, REPUTATION_NEUTRAL_Y, gui.inBounds(REPUTATION_MARKER_LIST_X, REPUTATION_NEUTRAL_Y, gui.getStringWidth(neutralName), FONT_HEIGHT, mX, mY) ? 0xAAAAAA : 0x404040);
+            gui.drawString(guiGraphics,neutralName, REPUTATION_MARKER_LIST_X, REPUTATION_NEUTRAL_Y, gui.inBounds(REPUTATION_MARKER_LIST_X, REPUTATION_NEUTRAL_Y, gui.getStringWidth(neutralName), FONT_HEIGHT, mX, mY) ? 0xAAAAAA : 0x404040);
     
             int x = REPUTATION_MARKER_LIST_X;
             int y = REPUTATION_MARKER_LIST_Y;
@@ -118,7 +118,7 @@ public class EditReputationGraphic extends EditableGraphic {
                 Component title = marker.getTitle();
                 
                 boolean hover = gui.inBounds(x, y, gui.getStringWidth(title), FONT_HEIGHT, mX, mY);
-                gui.drawString(matrices, title, x, y, hover ? 0xAAAAAA : 0x404040);
+                gui.drawString(guiGraphics,title, x, y, hover ? 0xAAAAAA : 0x404040);
                 
                 y += REPUTATION_OFFSET;
             }

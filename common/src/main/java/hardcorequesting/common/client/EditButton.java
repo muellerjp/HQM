@@ -1,7 +1,7 @@
 package hardcorequesting.common.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.ResourceHelper;
 import hardcorequesting.common.util.Translator;
@@ -56,18 +56,18 @@ public class EditButton {
     }
     
     @Environment(EnvType.CLIENT)
-    public void draw(GuiQuestBook gui, PoseStack matrices, int mX, int mY) {
+    public void draw(GuiQuestBook gui, GuiGraphics guiGraphics, int mX, int mY) {
         ResourceHelper.bindResource(GuiQuestBook.MAP_TEXTURE);
         int srcY = gui.getCurrentMode() == mode ? 2 : gui.inBounds(x, y, BUTTON_SIZE, BUTTON_SIZE, mX, mY) ? 1 : 0;
-        gui.drawRect(matrices, x, y, 256 - BUTTON_SIZE, srcY * BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE);
-        gui.drawRect(matrices, x + 2, y + 2,
+        gui.drawRect(guiGraphics, x, y, 256 - BUTTON_SIZE, srcY * BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE);
+        gui.drawRect(guiGraphics, x + 2, y + 2,
                 BUTTON_ICON_SRC_X + (mode.ordinal() % EDIT_BUTTONS_SRC_PER_ROW) * BUTTON_ICON_SIZE,
                 BUTTON_ICON_SRC_Y + (mode.ordinal() / EDIT_BUTTONS_SRC_PER_ROW) * BUTTON_ICON_SIZE,
                 BUTTON_ICON_SIZE, BUTTON_ICON_SIZE);
     }
-    
+
     @Environment(EnvType.CLIENT)
-    public void drawInfo(GuiQuestBook gui, PoseStack matrices, int mX, int mY) {
+    public void drawInfo(GuiQuestBook gui, GuiGraphics guiGraphics, int mX, int mY) {
         if (gui.inBounds(x, y, BUTTON_SIZE, BUTTON_SIZE, mX, mY)) {
             if (text == null) {
                 List<FormattedText> text = new ArrayList<>();
@@ -93,7 +93,7 @@ public class EditButton {
                 this.text = Language.getInstance().getVisualOrder(text);
             }
     
-            gui.renderTooltip(matrices, text, mX + gui.getLeft(), mY + gui.getTop());
+            gui.renderTooltip(guiGraphics, text, mX + gui.getLeft(), mY + gui.getTop());
         }
     }
     

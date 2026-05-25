@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.edit;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiBase;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
@@ -53,19 +53,19 @@ public class EditCommandRewardsMenu extends AbstractTextMenu {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-        
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
         for (int i = 0; i < this.commands.size(); i++) {
             Entry entry = commands.get(i);
             if (entry.command.isEmpty()) {
-                drawStringTrimmed(matrices, gui, Translator.translatable("hqm.commandEdit.deleted"), START_X, START_Y + (i * LINE_HEIGHT), 0xFF0000);
+                drawStringTrimmed(guiGraphics, gui, Translator.translatable("hqm.commandEdit.deleted"), START_X, START_Y + (i * LINE_HEIGHT), 0xFF0000);
             } else {
-                drawStringTrimmed(matrices, gui, Translator.plain(entry.command), START_X, getLineY(i), entry.edited ? 0xFF4500 : 0x000000);
+                drawStringTrimmed(guiGraphics, gui, Translator.plain(entry.command), START_X, getLineY(i), entry.edited ? 0xFF4500 : 0x000000);
             }
         }
         if (this.added != null && !this.added.isEmpty()) {
-            drawStringTrimmed(matrices, gui, Translator.plain(this.added), START_X, getLineY(getLineForAdded()), 0x447449);
+            drawStringTrimmed(guiGraphics, gui, Translator.plain(this.added), START_X, getLineY(getLineForAdded()), 0x447449);
         }
     }
     
@@ -92,21 +92,21 @@ public class EditCommandRewardsMenu extends AbstractTextMenu {
     }
     
     @Override
-    public void drawTooltip(PoseStack matrices, int mX, int mY) {
-        super.drawTooltip(matrices, mX, mY);
-        
+    public void drawTooltip(GuiGraphics guiGraphics, int mX, int mY) {
+        super.drawTooltip(guiGraphics, mX, mY);
+
         for (int i = 0; i < this.commands.size(); i++) {
             if (isOnCommand(i, mX, mY)) {
                 Entry entry = this.commands.get(i);
                 if (entry.command.isEmpty()) {
-                    drawStringTrimmed(matrices, gui, Translator.translatable("hqm.commandEdit.deleted"), START_X, getLineY(i), 0xF76767);
+                    drawStringTrimmed(guiGraphics, gui, Translator.translatable("hqm.commandEdit.deleted"), START_X, getLineY(i), 0xF76767);
                 } else {
-                    drawStringTrimmed(matrices, gui, Translator.plain(entry.command), START_X, getLineY(i), entry.edited ? 0xF9AB7A : 0x969696);
+                    drawStringTrimmed(guiGraphics, gui, Translator.plain(entry.command), START_X, getLineY(i), entry.edited ? 0xF9AB7A : 0x969696);
                 }
             }
         }
         if (this.added != null && !this.added.isEmpty()) {
-            drawStringTrimmed(matrices, gui, Translator.plain(this.added), START_X, getLineY(getLineForAdded()), 0x5A9B60);
+            drawStringTrimmed(guiGraphics, gui, Translator.plain(this.added), START_X, getLineY(getLineForAdded()), 0x5A9B60);
         }
     }
     
@@ -163,7 +163,7 @@ public class EditCommandRewardsMenu extends AbstractTextMenu {
         }
     }
     
-    private void drawStringTrimmed(PoseStack matrices, GuiBase gui, FormattedText text, int x, int y, int colour) {
+    private void drawStringTrimmed(GuiGraphics guiGraphics, GuiBase gui, FormattedText text, int x, int y, int colour) {
         CharacterLimitingVisitor characterLimitingVisitor = new CharacterLimitingVisitor(25);
         text = text.visit(new FormattedText.StyledContentConsumer<FormattedText>() {
             private final ComponentCollector collector = new ComponentCollector();
@@ -186,7 +186,7 @@ public class EditCommandRewardsMenu extends AbstractTextMenu {
                 }
             }
         }, Style.EMPTY).orElse(text);
-        gui.drawString(matrices, text, x, y, colour);
+        gui.drawString(guiGraphics, text, x, y, colour);
     }
     
     static class CharacterLimitingVisitor implements FormattedCharSink {

@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.font.TextFieldHelper;
@@ -71,19 +71,19 @@ public final class MultilineTextBox implements Drawable, Clickable {
     }
     
     @Override
-    public void render(PoseStack matrices, int mX, int mY) {
+    public void render(GuiGraphics guiGraphics, int mX, int mY) {
         int cursor = helper.getCursorPos();
         int selection = helper.getSelectionPos();
         int cursorLine = getLineFor(cursor);
         int pageStartLine = cursorLine - (cursorLine % LINES_PER_PAGE);
-        
-        gui.drawString(matrices, lines.stream().skip(pageStartLine).limit(LINES_PER_PAGE).map(Line::text).map(FormattedText::of).collect(Collectors.toList()), x, y, 1F, textColor);
-        gui.drawCursor(matrices, x + getTextX(cursorLine, cursor) - 1, y + getTextY(cursorLine, pageStartLine) - 3, 10, 1F, 0xFF909090);
-        
+
+        gui.drawString(guiGraphics, lines.stream().skip(pageStartLine).limit(LINES_PER_PAGE).map(Line::text).map(FormattedText::of).collect(Collectors.toList()), x, y, 1F, textColor);
+        gui.drawCursor(guiGraphics, x + getTextX(cursorLine, cursor) - 1, y + getTextY(cursorLine, pageStartLine) - 3, 10, 1F, 0xFF909090);
+
         if (cursor != selection) {
             int selectStart = Math.min(cursor, selection);
             int selectEnd = Math.max(cursor, selection);
-            gui.drawSelection(matrices, calculateSelectionBoxes(selectStart, selectEnd, pageStartLine));
+            gui.drawSelection(guiGraphics, calculateSelectionBoxes(selectStart, selectEnd, pageStartLine));
         }
     }
     

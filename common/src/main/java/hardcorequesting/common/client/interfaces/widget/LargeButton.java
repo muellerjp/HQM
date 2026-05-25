@@ -1,7 +1,7 @@
 package hardcorequesting.common.client.interfaces.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiBase;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.ResourceHelper;
@@ -66,27 +66,24 @@ public abstract class LargeButton implements Drawable, Clickable {
     
     @Override
     @Environment(EnvType.CLIENT)
-    public void render(PoseStack matrices, int mX, int mY) {
+    public void render(GuiGraphics guiGraphics, int mX, int mY) {
         if (isVisible()) {
-            
             ResourceHelper.bindResource(GuiQuestBook.MAP_TEXTURE);
-            
             RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
             boolean enabled = isEnabled();
-            this.gui.drawRect(matrices, x, y, BUTTON_SRC_X + (enabled && inButtonBounds(mX, mY) ? BUTTON_WIDTH : 0), BUTTON_SRC_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-            this.gui.drawCenteredString(matrices, getName(), x, y, 0.7F, BUTTON_WIDTH, BUTTON_HEIGHT, enabled ? 0x404040 : 0xA0A070);
+            this.gui.drawRect(guiGraphics, x, y, BUTTON_SRC_X + (enabled && inButtonBounds(mX, mY) ? BUTTON_WIDTH : 0), BUTTON_SRC_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+            this.gui.drawCenteredString(guiGraphics, getName(), x, y, 0.7F, BUTTON_WIDTH, BUTTON_HEIGHT, enabled ? 0x404040 : 0xA0A070);
         }
     }
-    
+
     @Override
     @Environment(EnvType.CLIENT)
-    public void renderTooltip(PoseStack matrices, int mX, int mY) {
+    public void renderTooltip(GuiGraphics guiGraphics, int mX, int mY) {
         if (isVisible() && inButtonBounds(mX, mY)) {
             FormattedText description = getDescription();
             if (description != null) {
                 var lines = this.gui.getLinesFromText(getDescription(), 1, 200);
-    
-                this.gui.renderTooltip(matrices, Language.getInstance().getVisualOrder(lines), mX + this.gui.getLeft(), mY + this.gui.getTop());
+                this.gui.renderTooltip(guiGraphics, Language.getInstance().getVisualOrder(lines), mX + this.gui.getLeft(), mY + this.gui.getTop());
             }
         }
     }

@@ -1,7 +1,7 @@
 package hardcorequesting.common.client.interfaces.graphic;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.widget.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,22 +24,22 @@ public abstract class Graphic {
         addClickable(textBoxes);
     }
     
-    public final void drawFull(PoseStack matrices, int mX, int mY) {
-        draw(matrices, mX, mY);
-        drawTooltip(matrices, mX, mY);
+    public final void drawFull(GuiGraphics guiGraphics, int mX, int mY) {
+        draw(guiGraphics, mX, mY);
+        drawTooltip(guiGraphics, mX, mY);
     }
-    
-    public void draw(PoseStack matrices, int mX, int mY) {
+
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        
+
         for (Drawable drawable : drawables) {
-            drawable.render(matrices, mX, mY);
+            drawable.render(guiGraphics, mX, mY);
         }
     }
-    
-    public void drawTooltip(PoseStack matrices, int mX, int mY) {
+
+    public void drawTooltip(GuiGraphics guiGraphics, int mX, int mY) {
         for (Drawable drawable : drawables) {
-            drawable.renderTooltip(matrices, mX, mY);
+            drawable.renderTooltip(guiGraphics, mX, mY);
         }
     }
     

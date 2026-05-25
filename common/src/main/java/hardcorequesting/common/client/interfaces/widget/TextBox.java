@@ -1,11 +1,10 @@
 package hardcorequesting.common.client.interfaces.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiBase;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.ResourceHelper;
-import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.renderer.Rect2i;
@@ -55,7 +54,7 @@ public class TextBox {
         this.scale = scale;
         this.offsetY = (int) (TEXT_BOX_HEIGHT - scale * GuiBase.TEXT_HEIGHT);
     
-        this.text = SharedConstants.filterText(Objects.requireNonNullElse(str, ""));
+        this.text = filterText(Objects.requireNonNullElse(str, ""));
         helper = new TextFieldHelper(this::getText, this::setText, this::getStrippedClipboard,
                 TextFieldHelper.createClipboardSetter(Minecraft.getInstance()), this::isTextValid);
         updateVisible();
@@ -75,7 +74,17 @@ public class TextBox {
     }
     
     protected String getStrippedClipboard() {
-        return SharedConstants.filterText(TextFieldHelper.getClipboardContents(Minecraft.getInstance()));
+        return filterText(TextFieldHelper.getClipboardContents(Minecraft.getInstance()));
+    }
+
+    private static String filterText(String text) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (c != 167 && (c >= 32 || c == 9)) {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
     
     public boolean onKeyStroke(int k) {
@@ -86,26 +95,26 @@ public class TextBox {
         return helper.charTyped(c);
     }
     
-    protected void draw(PoseStack matrices, boolean selected, int mX, int mY) {
+    protected void draw(GuiGraphics guiGraphics, boolean selected, int mX, int mY) {
         checkCursor();
-        
+
         ResourceHelper.bindResource(GuiQuestBook.MAP_TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        
-        this.gui.drawRect(matrices, x, y, TEXT_BOX_SRC_X, TEXT_BOX_SRC_Y + (selected || inBounds(mX, mY) ? TEXT_BOX_HEIGHT : 0), TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT);
-        this.gui.drawString(matrices, visibleText, x + 3, y + offsetY, scale, 0x404040);
-        
+
+        this.gui.drawRect(guiGraphics, x, y, TEXT_BOX_SRC_X, TEXT_BOX_SRC_Y + (selected || inBounds(mX, mY) ? TEXT_BOX_HEIGHT : 0), TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT);
+        this.gui.drawString(guiGraphics, visibleText, x + 3, y + offsetY, scale, 0x404040);
+
         if (selected) {
             int cursor = helper.getCursorPos();
             int selection = helper.getSelectionPos();
-            
+
             int cursorPositionX = (int) (scale * this.gui.getStringWidth(visibleText.substring(0, Math.min(visibleText.length(), cursor - visibleStart))));
-            this.gui.drawCursor(matrices, x + cursorPositionX + 2, y, 10, 1F, 0xFF909090);
-            
+            this.gui.drawCursor(guiGraphics, x + cursorPositionX + 2, y, 10, 1F, 0xFF909090);
+
             if (cursor != selection) {
                 int selectStart = Math.min(cursor, selection);
                 int selectEnd = Math.max(cursor, selection);
-                gui.drawSelection(matrices, Collections.singleton(getSelectionBox(selectStart, selectEnd)));
+                gui.drawSelection(guiGraphics, Collections.singleton(getSelectionBox(selectStart, selectEnd)));
             }
         }
     }

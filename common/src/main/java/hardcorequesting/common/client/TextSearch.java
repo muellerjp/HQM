@@ -4,7 +4,7 @@ import dev.architectury.fluid.FluidStack;
 import hardcorequesting.common.HardcoreQuestingCore;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -62,16 +62,16 @@ public class TextSearch<T> {
         if (ITEMS.isEmpty() || FLUIDS.isEmpty()) {
             clear();
             NonNullList<ItemStack> stacks = NonNullList.create();
-            for (Item item : Registry.ITEM) {
+            for (Item item : BuiltInRegistries.ITEM) {
                 try {
-                    item.fillItemCategory(item.getItemCategory(), stacks);
+                    stacks.add(new ItemStack(item));
                 } catch (Exception ignore) {
                 }
             }
             Player player = Minecraft.getInstance().player;
             for (ItemStack stack : stacks) {
-                List tooltipList = stack.getTooltipLines(player, TooltipFlag.Default.NORMAL);
-                List advTooltipList = stack.getTooltipLines(player, TooltipFlag.Default.ADVANCED);
+                List tooltipList = stack.getTooltipLines(Item.TooltipContext.EMPTY, player, TooltipFlag.Default.NORMAL);
+                List advTooltipList = stack.getTooltipLines(Item.TooltipContext.EMPTY, player, TooltipFlag.Default.ADVANCED);
                 StringBuilder searchString = new StringBuilder();
                 for (Object string : tooltipList) {
                     if (string != null)
@@ -84,7 +84,7 @@ public class TextSearch<T> {
                 }
                 ITEMS.add(new SearchEntry<>(searchString.toString(), advSearchString.toString(), stack));
             }
-            for (Fluid fluid : Registry.FLUID) {
+            for (Fluid fluid : BuiltInRegistries.FLUID) {
                 if (fluid instanceof EmptyFluid) continue;
                 if (!fluid.defaultFluidState().isSource()) continue;
                 FluidStack fluidVolume = FluidStack.create(fluid, HardcoreQuestingCore.platform.getBucketAmount().intValue());

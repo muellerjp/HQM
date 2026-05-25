@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiBase;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
@@ -135,16 +135,16 @@ public final class QuestGraphic extends EditableGraphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
         if (!Quest.canQuestsBeEdited() && selectedTask != null && !selectedTask.isVisible(playerId)) {
             setSelectedTask(quest.getTasks().size() > 0 ? quest.getTasks().get(0) : null);
         }
-        
-        gui.drawString(matrices, quest.getName(), START_X, TITLE_START_Y, 0x404040);
-        
+
+        gui.drawString(guiGraphics, quest.getName(), START_X, TITLE_START_Y, 0x404040);
+
         List<FormattedText> description = descriptionScroll.getVisibleEntries();
-        gui.drawString(matrices, description, START_X, DESCRIPTION_START_Y, 0.7F, 0x404040);
-        
+        gui.drawString(guiGraphics, description, START_X, DESCRIPTION_START_Y, 0.7F, 0x404040);
+
         int id = 0;
         for (QuestTask<?> task : taskScroll.getVisibleEntries(quest.getTasks(), VISIBLE_TASKS)) {
             boolean isVisible = task.isVisible(playerId);
@@ -153,32 +153,32 @@ public final class QuestGraphic extends EditableGraphic {
                 int yPos = getTaskY(id);
                 boolean inBounds = gui.inBounds(START_X, yPos, gui.getStringWidth(task.getName()), GuiBase.TEXT_HEIGHT, mX, mY);
                 boolean isSelected = task == selectedTask;
-                gui.drawString(matrices, task.getName(), START_X, yPos, completed ? isSelected ? inBounds ? 0x40BB40 : 0x40A040 : inBounds ? 0x10A010 : 0x107010 : isSelected ? inBounds ? 0xAAAAAA : 0x888888 : inBounds ? 0x666666 : isVisible ? 0x404040 : 0xDDDDDD);
-                
+                gui.drawString(guiGraphics, task.getName(), START_X, yPos, completed ? isSelected ? inBounds ? 0x40BB40 : 0x40A040 : inBounds ? 0x10A010 : 0x107010 : isSelected ? inBounds ? 0xAAAAAA : 0x888888 : inBounds ? 0x666666 : isVisible ? 0x404040 : 0xDDDDDD);
+
                 id++;
             }
         }
-        
-        super.draw(matrices, mX, mY);
-        
-        rewardsGraphic.draw(matrices, mX, mY);
-        
+
+        super.draw(guiGraphics, mX, mY);
+
+        rewardsGraphic.draw(guiGraphics, mX, mY);
+
         if (taskGraphic != null) {
-            taskGraphic.draw(matrices, mX, mY);
+            taskGraphic.draw(guiGraphics, mX, mY);
         } else if (Quest.canQuestsBeEdited() && gui.getCurrentMode() == EditMode.TASK) {
-            gui.drawString(matrices, gui.getLinesFromText(Translator.translatable("hqm.quest.createTasks"), 0.7F, 130), 180, 20, 0.7F, 0x404040);
+            gui.drawString(guiGraphics, gui.getLinesFromText(Translator.translatable("hqm.quest.createTasks"), 0.7F, 130), 180, 20, 0.7F, 0x404040);
         }
     }
-    
+
     @Override
-    public void drawTooltip(PoseStack matrices, int mX, int mY) {
-        super.drawTooltip(matrices, mX, mY);
-    
+    public void drawTooltip(GuiGraphics guiGraphics, int mX, int mY) {
+        super.drawTooltip(guiGraphics, mX, mY);
+
         if (taskGraphic != null) {
-            taskGraphic.drawTooltip(matrices, mX, mY);
+            taskGraphic.drawTooltip(guiGraphics, mX, mY);
         }
-    
-        rewardsGraphic.drawTooltip(matrices, mX, mY);
+
+        rewardsGraphic.drawTooltip(guiGraphics, mX, mY);
     }
     
     private int getVisibleTasks() {

@@ -1,7 +1,7 @@
 package hardcorequesting.common.client.interfaces.edit;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.HardcoreQuestingCore;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.ResourceHelper;
@@ -10,7 +10,7 @@ import hardcorequesting.common.client.interfaces.widget.ExtendedScrollBar;
 import hardcorequesting.common.client.interfaces.widget.ScrollBar;
 import hardcorequesting.common.client.interfaces.widget.TextBox;
 import hardcorequesting.common.util.Translator;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.FormattedText;
 
 import java.util.ArrayList;
@@ -74,8 +74,8 @@ public class PickAdvancementMenu extends GuiEditMenu {
         advancementNames = new ArrayList<>();
         
         // Just using this to gain access to the advancement manager
-        for (Advancement a : HardcoreQuestingCore.getServer().getAdvancements().getAllAdvancements()) {
-            String adv = a.getId().toString();
+        for (AdvancementHolder a : HardcoreQuestingCore.getServer().getAdvancements().getAllAdvancements()) {
+            String adv = a.id().toString();
             rawAdvancemenNames.add(adv);
             advancementNames.add(adv);
         }
@@ -98,25 +98,25 @@ public class PickAdvancementMenu extends GuiEditMenu {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-        
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
         ResourceHelper.bindResource(GuiQuestBook.MAP_TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        
+
         int nameY = START_Y;
         for (String name : scrollBar.getVisibleEntries()) {
             boolean selected = name.equals(advancement);
             boolean inBounds = gui.inBounds(START_X, nameY, 130, 6, mX, mY);
-            
-            gui.drawString(matrices, Translator.plain(name), START_X, nameY, 0.7F, selected ? inBounds ? 0xC0C0C0 : 0xA0A0A0 : inBounds ? 0x707070 : 0x404040);
+
+            gui.drawString(guiGraphics, Translator.plain(name), START_X, nameY, 0.7F, selected ? inBounds ? 0xC0C0C0 : 0xA0A0A0 : inBounds ? 0x707070 : 0x404040);
             nameY += OFFSET_Y;
         }
-        
-        gui.drawString(matrices, Translator.plain("Search"), 180, 20, 0x404040);
-        gui.drawString(matrices, Translator.plain(((advancement == null) ? "Nothing" : "Currently") + "Selected"), 180, 40, 0x404040);
+
+        gui.drawString(guiGraphics, Translator.plain("Search"), 180, 20, 0x404040);
+        gui.drawString(guiGraphics, Translator.plain(((advancement == null) ? "Nothing" : "Currently") + "Selected"), 180, 40, 0x404040);
         if (advancement != null) {
-            gui.drawString(matrices, Translator.plain(advancement), 180, 50, 0.7F, 0x404040);
+            gui.drawString(guiGraphics, Translator.plain(advancement), 180, 50, 0.7F, 0x404040);
         }
     }
     

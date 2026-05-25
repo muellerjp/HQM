@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.edit;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.widget.ArrowSelectionHelper;
 import hardcorequesting.common.client.interfaces.widget.LargeButton;
@@ -49,21 +49,21 @@ public class LocationMenu extends GuiEditMenu {
                 super.textChanged();
                 dimension = getText();
             }
-            
+
             @Override
-            protected void draw(PoseStack matrices, boolean selected, int mX, int mY) {
-                super.draw(matrices, selected, mX, mY);
-                
-                this.gui.drawString(matrices, Translator.translatable("hqm.locationMenu.dim"), x, y + NumberTextBox.TEXT_OFFSET, 0x404040);
+            protected void draw(GuiGraphics guiGraphics, boolean selected, int mX, int mY) {
+                super.draw(guiGraphics, selected, mX, mY);
+
+                this.gui.drawString(guiGraphics, Translator.translatable("hqm.locationMenu.dim"), x, y + NumberTextBox.TEXT_OFFSET, 0x404040);
             }
         });
-        
+
         addTextBox(new NumberTextBox(gui, 20, 30 + 4 * BOX_OFFSET, Translator.translatable("hqm.locationMenu.radius"), true, () -> radius, value -> radius = value) {
             @Override
-            protected void draw(PoseStack matrices, boolean selected, int mX, int mY) {
-                super.draw(matrices, selected, mX, mY);
-    
-                this.gui.drawString(matrices, this.gui.getLinesFromText(Translator.translatable("hqm.locationMenu.negRadius"), 0.7F, 130), x, y + BOX_OFFSET + TEXT_OFFSET, 0.7F, 0x404040);
+            protected void draw(GuiGraphics guiGraphics, boolean selected, int mX, int mY) {
+                super.draw(guiGraphics, selected, mX, mY);
+
+                this.gui.drawString(guiGraphics, this.gui.getLinesFromText(Translator.translatable("hqm.locationMenu.negRadius"), 0.7F, 130), x, y + BOX_OFFSET + TEXT_OFFSET, 0.7F, 0x404040);
             }
         });
         
@@ -74,7 +74,7 @@ public class LocationMenu extends GuiEditMenu {
                 Player player = Minecraft.getInstance().player;
                 if (player != null) {
                     pos.set(player.getX(), player.getY(), player.getZ());
-                    dimension = player.level.dimension().location().toString();
+                    dimension = player.level().dimension().location().toString();
                     reloadTextBoxes();
                 }
             }

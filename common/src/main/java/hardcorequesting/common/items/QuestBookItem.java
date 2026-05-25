@@ -11,6 +11,7 @@ import hardcorequesting.common.util.HQMUtil;
 import hardcorequesting.common.util.Translator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,20 +31,30 @@ import java.util.UUID;
 public class QuestBookItem extends Item {
     private static final String NBT_PLAYER = "UseAsPlayer";
     private final boolean enabled;
-    
+
     public QuestBookItem(boolean enabled) {
-        super(new Item.Properties().stacksTo(1).tab(ModCreativeTabs.HQMTab));
+        super(new Item.Properties().stacksTo(1));
         this.enabled = enabled;
     }
-    
+
     public static ItemStack getOPBook(Player player) {
         ItemStack stack = new ItemStack(ModItems.enabledBook.get());
-        CompoundTag nbt = stack.getOrCreateTagElement("hqm");
+        CustomData existing = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag root = existing.copyTag();
+        CompoundTag nbt = root.contains("hqm") ? root.getCompound("hqm") : new CompoundTag();
         nbt.putString(NBT_PLAYER, player.getUUID().toString());
-        stack.addTagElement("hqm", nbt);
+        root.put("hqm", nbt);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(root));
         return stack;
     }
-    
+
+    private static CompoundTag getHqmTag(ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) return null;
+        CompoundTag root = customData.copyTag();
+        return root.contains("hqm") ? root.getCompound("hqm") : null;
+    }
+
     @NotNull
     @Override
     @SuppressWarnings("deprecation")
@@ -50,7 +62,7 @@ public class QuestBookItem extends Item {
         if (world.isClientSide && Quest.isEditing && !HQMUtil.isSinglePlayerOnly()) {
             Quest.setEditMode(false);
         }
-        
+
         if (!world.isClientSide && player instanceof ServerPlayer) {
             ItemStack stack = player.getItemInHand(hand);
             QuestingDataManager questingData = QuestingDataManager.getInstance();
@@ -58,7 +70,7 @@ public class QuestBookItem extends Item {
                 player.sendSystemMessage(Translator.translatable("hqm.message.noQuestYet"));
             } else {
                 if (enabled) {
-                    CompoundTag compound = stack.getTagElement("hqm");
+                    CompoundTag compound = getHqmTag(stack);
                     if (compound != null && compound.contains(NBT_PLAYER)) {
                         String uuidS = compound.getString(NBT_PLAYER);
                         UUID uuid;
@@ -101,11 +113,11 @@ public class QuestBookItem extends Item {
         }
         return super.use(world, player, hand);
     }
-    
+
     @Override
-    public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         if (enabled) {
-            CompoundTag compound = stack.getTagElement("hqm");
+            CompoundTag compound = getHqmTag(stack);
             if (compound != null && compound.contains(NBT_PLAYER)) {
                 Player useAsPlayer = QuestingData.getPlayer(compound.getString(NBT_PLAYER));
                 tooltip.add(Translator.translatable("item.hqm:quest_book_1.useAs", useAsPlayer == null ? "INVALID" : useAsPlayer.getScoreboardName()));
@@ -113,7 +125,7 @@ public class QuestBookItem extends Item {
                 tooltip.add(Translator.translatable("item.hqm:quest_book_1.invalid").withStyle(ChatFormatting.RED));
         }
     }
-    
+
     @Override
     public boolean isFoil(ItemStack stack) {
         return enabled;

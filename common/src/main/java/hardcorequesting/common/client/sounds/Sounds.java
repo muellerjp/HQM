@@ -18,7 +18,7 @@ public enum Sounds {
     private Supplier<SoundEvent> supplier;
     
     Sounds(String soundName) {
-        this.soundId = new ResourceLocation(HardcoreQuestingCore.ID, soundName);
+        this.soundId = ResourceLocation.fromNamespaceAndPath(HardcoreQuestingCore.ID, soundName);
     }
     
     public ResourceLocation getSoundId() {
@@ -31,7 +31,7 @@ public enum Sounds {
     
     public static void registerSounds() {
         for (Sounds sound : Sounds.values()) {
-            sound.supplier = HardcoreQuestingCore.platform.registerSound(sound.soundId.getPath(), () -> new SoundEvent(sound.soundId));
+            sound.supplier = HardcoreQuestingCore.platform.registerSound(sound.soundId.getPath(), () -> SoundEvent.createVariableRangeEvent(sound.soundId));
         }
     }
 }

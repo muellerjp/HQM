@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.EditButton;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.KeyboardHandler;
@@ -24,23 +24,23 @@ public abstract class EditableGraphic extends Graphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-    
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
         if (Quest.canQuestsBeEdited()) {
             for (EditButton button : editButtons) {
-                button.draw(gui, matrices, mX, mY);
+                button.draw(gui, guiGraphics, mX, mY);
             }
         }
     }
-    
+
     @Override
-    public void drawTooltip(PoseStack matrices, int mX, int mY) {
-        super.drawTooltip(matrices, mX, mY);
-    
+    public void drawTooltip(GuiGraphics guiGraphics, int mX, int mY) {
+        super.drawTooltip(guiGraphics, mX, mY);
+
         if (Quest.canQuestsBeEdited()) {
             for (EditButton button : editButtons) {
-                button.drawInfo(gui, matrices, mX, mY);
+                button.drawInfo(gui, guiGraphics, mX, mY);
             }
         }
     }

@@ -2,6 +2,7 @@ package hardcorequesting.common.death;
 
 import hardcorequesting.common.util.Translator;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,79 +13,79 @@ public enum DeathType {
     LAVA("lava") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("lava");
+            return source.type().msgId().equals("lava");
         }
     },
     FIRE("fire") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.isFire();
+            return source.is(DamageTypeTags.IS_FIRE);
         }
     },
     SUFFOCATION("suffocation") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("inWall");
+            return source.type().msgId().equals("inWall");
         }
     },
     THORNS("thorns") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("thorns") || source.msgId.equals("cactus");
+            return source.type().msgId().equals("thorns") || source.type().msgId().equals("cactus");
         }
     },
     DROWNING("drowning") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("drown");
+            return source.type().msgId().equals("drown");
         }
     },
     STARVATION("starvation") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("starve");
+            return source.type().msgId().equals("starve");
         }
     },
     FALL("fall") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("fall");
+            return source.type().msgId().equals("fall");
         }
     },
     VOID("void") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("outOfWorld");
+            return source.type().msgId().equals("outOfWorld");
         }
     },
     CRUSHED("crushed") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("anvil") || source.msgId.equals("fallingBlock");
+            return source.type().msgId().equals("anvil") || source.type().msgId().equals("fallingBlock");
         }
     },
     EXPLOSION("explosions") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.isExplosion();
+            return source.is(DamageTypeTags.IS_EXPLOSION);
         }
     },
     MONSTER("monsters") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("mob") || source.getEntity() instanceof LivingEntity;
+            return source.type().msgId().equals("mob") || source.getEntity() instanceof LivingEntity;
         }
     },
     PLAYER("otherPlayers") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.msgId.equals("player") || source.getEntity() instanceof Player;
+            return source.type().msgId().equals("player") || source.getEntity() instanceof Player;
         }
     },
     MAGIC("magic") {
         @Override
         boolean isSourceValid(DamageSource source) {
-            return source.isMagic();
+            return source.type().msgId().equals("magic") || source.type().msgId().equals("indirectMagic");
         }
     },
     HQM("rottenHearts") {
@@ -107,7 +108,7 @@ public enum DeathType {
     }
     
     public static void onDeath(Player player, DamageSource source) {
-        if (source != null && source.msgId != null) {
+        if (source != null) {
             for (DeathType deathType : values()) {
                 if (deathType.isSourceValid(source)) {
                     deathType.onDeath(player);

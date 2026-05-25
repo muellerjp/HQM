@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic.task;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.ClientChange;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiBase;
@@ -72,10 +72,10 @@ public abstract class TaskGraphic extends Graphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-    
-        gui.drawString(matrices, taskDescriptionScroll.getVisibleEntries(),
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
+        gui.drawString(guiGraphics, taskDescriptionScroll.getVisibleEntries(),
                 TASK_DESCRIPTION_X, TASK_DESCRIPTION_Y, 0.7F, 0x404040);
     }
     

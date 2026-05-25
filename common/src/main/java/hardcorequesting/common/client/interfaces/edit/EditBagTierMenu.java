@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.edit;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.bag.BagTier;
 import hardcorequesting.common.bag.GroupTier;
 import hardcorequesting.common.bag.TierColor;
@@ -64,19 +64,19 @@ public class EditBagTierMenu extends GuiEditMenu {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-        
-        gui.drawString(matrices, tier.getName(), TIERS_TEXT_X, TIERS_TEXT_Y, tier.getColor().getHexColor());
-        
-        gui.drawString(matrices, Translator.translatable("hqm.menuTier.weights"), TIERS_TEXT_X, TIERS_WEIGHTS_TEXT_Y, 0x404040);
-        
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
+        gui.drawString(guiGraphics, tier.getName(), TIERS_TEXT_X, TIERS_TEXT_Y, tier.getColor().getHexColor());
+
+        gui.drawString(guiGraphics, Translator.translatable("hqm.menuTier.weights"), TIERS_TEXT_X, TIERS_WEIGHTS_TEXT_Y, 0x404040);
+
         BagTier[] values = BagTier.values();
         for (int i = 0; i < values.length; i++) {
             BagTier bagTier = values[i];
-            
+
             int posY = TIERS_WEIGHTS_Y + i * TIERS_WEIGHTS_SPACING;
-            gui.drawString(matrices, bagTier.getColoredName(), TIERS_WEIGHTS_X, posY, 0x404040);
+            gui.drawString(guiGraphics, bagTier.getColoredName(), TIERS_WEIGHTS_X, posY, 0x404040);
         }
     }
     

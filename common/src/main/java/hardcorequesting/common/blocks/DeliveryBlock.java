@@ -1,5 +1,6 @@
 package hardcorequesting.common.blocks;
 
+import com.mojang.serialization.MapCodec;
 import hardcorequesting.common.HardcoreQuestingCore;
 import hardcorequesting.common.items.QuestBookItem;
 import hardcorequesting.common.quests.Quest;
@@ -9,6 +10,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,9 +26,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 public class DeliveryBlock extends BaseEntityBlock {
-    
+
     public static final BooleanProperty BOUND = BooleanProperty.create("bound");
-    
+    public static final MapCodec<DeliveryBlock> CODEC = simpleCodec(DeliveryBlock::new);
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     public DeliveryBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(BOUND, false));
@@ -39,24 +47,31 @@ public class DeliveryBlock extends BaseEntityBlock {
     }
     
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!world.isClientSide) {
-            ItemStack hold = player.getItemInHand(hand);
+    protected ItemInteractionResult useItemOn(ItemStack hold, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!world.isClientSide && hold.getItem() instanceof QuestBookItem) {
             BlockEntity tile = world.getBlockEntity(pos);
             if (tile instanceof AbstractBarrelBlockEntity) {
-                if (!hold.isEmpty() && hold.getItem() instanceof QuestBookItem) {
-                    ((AbstractBarrelBlockEntity) tile).storeSettings(player);
-                    if (((AbstractBarrelBlockEntity) tile).getCurrentTask() != null) {
-                        player.sendSystemMessage(Translator.translatable("tile.hqm:item_barrel.bindTo", Quest.getQuest(((AbstractBarrelBlockEntity) tile).getQuestUUID()).getName()));
-                    } else {
-                        player.sendSystemMessage(Translator.translatable("hqm.message.noTaskSelected"));
-                    }
+                ((AbstractBarrelBlockEntity) tile).storeSettings(player);
+                if (((AbstractBarrelBlockEntity) tile).getCurrentTask() != null) {
+                    player.sendSystemMessage(Translator.translatable("tile.hqm:item_barrel.bindTo", Quest.getQuest(((AbstractBarrelBlockEntity) tile).getQuestUUID()).getName()));
                 } else {
-                    if (((AbstractBarrelBlockEntity) tile).getCurrentTask() != null) {
-                        player.sendSystemMessage(Translator.translatable("tile.hqm:item_barrel.boundTo", Quest.getQuest(((AbstractBarrelBlockEntity) tile).getQuestUUID()).getName()));
-                    } else {
-                        player.sendSystemMessage(Translator.translatable("tile.hqm:item_barrel.nonBound"));
-                    }
+                    player.sendSystemMessage(Translator.translatable("hqm.message.noTaskSelected"));
+                }
+            }
+            return ItemInteractionResult.SUCCESS;
+        }
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!world.isClientSide) {
+            BlockEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof AbstractBarrelBlockEntity) {
+                if (((AbstractBarrelBlockEntity) tile).getCurrentTask() != null) {
+                    player.sendSystemMessage(Translator.translatable("tile.hqm:item_barrel.boundTo", Quest.getQuest(((AbstractBarrelBlockEntity) tile).getQuestUUID()).getName()));
+                } else {
+                    player.sendSystemMessage(Translator.translatable("tile.hqm:item_barrel.nonBound"));
                 }
             }
         }

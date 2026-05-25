@@ -9,7 +9,8 @@ import hardcorequesting.common.commands.CommandHandler;
 import hardcorequesting.common.config.HQMConfig;
 import hardcorequesting.common.quests.QuestingDataManager;
 import hardcorequesting.common.util.Translator;
-import net.minecraft.commands.CommandRuntimeException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -140,13 +141,13 @@ public class LivesSubCommand implements CommandHandler.SubCommand {
         currentLives(player);
     }
     
-    private void getPlayerLives(CommandSourceStack source, String playerName) throws CommandRuntimeException {
+    private void getPlayerLives(CommandSourceStack source, String playerName) throws CommandSyntaxException {
         Player player = HardcoreQuestingCore.getServer().getPlayerList().getPlayerByName(playerName);
         if (player != null) {
             int lives = QuestingDataManager.getInstance().getQuestingData(player).getLives();
             sendChat(source, Translator.translatable("hqm.message.hasLivesRemaining", playerName, Translator.lives(lives)));
         } else {
-            throw new CommandRuntimeException(Component.translatable("hqm.message.noPlayer"));
+            throw new SimpleCommandExceptionType(Component.translatable("hqm.message.noPlayer")).create();
         }
     }
 }

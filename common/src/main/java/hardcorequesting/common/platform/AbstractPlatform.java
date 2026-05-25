@@ -1,6 +1,5 @@
 package hardcorequesting.common.platform;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.fluid.FluidStack;
 import hardcorequesting.common.tileentity.AbstractBarrelBlockEntity;

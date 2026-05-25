@@ -7,11 +7,13 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.nbt.NbtOps;
 import dev.architectury.fluid.FluidStack;
 import hardcorequesting.common.HardcoreQuestingCore;
 import hardcorequesting.common.util.FluidUtils;
 import hardcorequesting.common.util.Fraction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -34,12 +36,16 @@ public class MinecraftAdapter {
                 return nullVal();
             
             JsonObject jsonObj = new JsonObject();
-            jsonObj.addProperty("id", Registry.ITEM.getKey(src.getItem()).toString());
+            jsonObj.addProperty("id", BuiltInRegistries.ITEM.getKey(src.getItem()).toString());
             jsonObj.addProperty("Count", src.getCount());
-            
-            CompoundTag tag = src.getTag();
-            if (tag != null) {
-                jsonObj.add("tag", COMPOUND_TAG.serialize(tag));
+
+            DataComponentPatch patch = src.getComponentsPatch();
+            if (!patch.isEmpty()) {
+                CompoundTag patchTag = (CompoundTag) DataComponentPatch.CODEC
+                        .encodeStart(NbtOps.INSTANCE, patch).result().orElse(null);
+                if (patchTag != null) {
+                    jsonObj.add("tag", COMPOUND_TAG.serialize(patchTag));
+                }
             }
             
             return jsonObj;
@@ -52,12 +58,16 @@ public class MinecraftAdapter {
                 return ItemStack.EMPTY;
             else {
                 JsonObject jsonObj = json.getAsJsonObject();
-                Item item = Registry.ITEM.get(new ResourceLocation(GsonHelper.getAsString(jsonObj, "id")));
+                Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(jsonObj, "id")));
                 int count = GsonHelper.getAsByte(jsonObj, "Count");
                 ItemStack stack = new ItemStack(item, count);
                 
                 if (jsonObj.has("tag")) {
-                    stack.setTag(COMPOUND_TAG.deserialize(jsonObj.get("tag")));
+                    CompoundTag patchTag = COMPOUND_TAG.deserialize(jsonObj.get("tag"));
+                    if (patchTag != null) {
+                        DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, patchTag)
+                                .result().ifPresent(stack::applyComponents);
+                    }
                 }
                 
                 return stack;
@@ -91,7 +101,7 @@ public class MinecraftAdapter {
         @Override
         public JsonElement serialize(FluidStack src) {
             return object()
-                    .add(FLUID, Registry.FLUID.getKey(src.getFluid()).toString())
+                    .add(FLUID, BuiltInRegistries.FLUID.getKey(src.getFluid()).toString())
                     .add(VOLUME, Fraction.CODEC.encodeStart(JsonOps.INSTANCE, FluidUtils.getAmount(src)).result().orElseThrow())
                     .build();
         }
@@ -100,7 +110,7 @@ public class MinecraftAdapter {
         public FluidStack deserialize(JsonElement json) {
             JsonObject object = json.getAsJsonObject();
             
-            Fluid fluid = Registry.FLUID.get(new ResourceLocation(GsonHelper.getAsString(object, FLUID)));
+            Fluid fluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(GsonHelper.getAsString(object, FLUID)));
             Fraction amount = Fraction.CODEC.parse(JsonOps.INSTANCE, object.get(VOLUME)).result().orElseThrow();
             return FluidStack.create(fluid, amount.intValue());
         }

@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic.task;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.edit.IntInputMenu;
 import hardcorequesting.common.client.interfaces.widget.LargeButton;
@@ -37,14 +37,14 @@ public class DeathTaskGraphic extends TaskGraphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
         int died = task.getDeaths(playerId);
         FormattedText text = died == task.getDeathsRequired()
                 ? Translator.translatable("hqm.deathMenu.deaths", Translator.plural("hqm.times", task.getDeathsRequired())).withStyle(ChatFormatting.DARK_GREEN)
                 : Translator.translatable("hqm.deathMenu.deathsOutOf", died, Translator.plural("hqm.times", task.getDeathsRequired()));
-    
-        gui.drawString(matrices, gui.getLinesFromText(text, 1F, 130), START_X, START_Y, 1F, 0x404040);
-    
-        super.draw(matrices, mX, mY);
+
+        gui.drawString(guiGraphics, gui.getLinesFromText(text, 1F, 130), START_X, START_Y, 1F, 0x404040);
+
+        super.draw(guiGraphics, mX, mY);
     }
 }

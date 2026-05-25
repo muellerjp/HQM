@@ -1,7 +1,7 @@
 package hardcorequesting.common.client.interfaces.graphic;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.BookPage;
 import hardcorequesting.common.client.interfaces.GuiBase;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
@@ -228,10 +228,10 @@ public class TeamMenuGraphic extends Graphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
         Team team = getTeam();
         PlayerEntry entry = getEntry(team);
-        
+
         if (Team.reloadedInvites) {
             if (inviteTeam != null) {
                 boolean stillThere = false;
@@ -241,41 +241,41 @@ public class TeamMenuGraphic extends Graphic {
                         stillThere = true;
                     }
                 }
-    
+
                 if (!stillThere) {
                     inviteTeam = null;
                 }
             }
             Team.reloadedInvites = false;
         }
-        
-        super.draw(matrices, mX, mY);
-        
+
+        super.draw(guiGraphics, mX, mY);
+
         ResourceHelper.bindResource(GuiQuestBook.MAP_TEXTURE);
-        
+
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        
+
         if (team.isSingle() && inviteTeam == null) {
             if (!team.getInvites().isEmpty()) {
-                gui.drawString(matrices, Translator.translatable("hqm.party.invites"), TITLE_X, TITLE_Y, 0x404040);
-                
+                gui.drawString(guiGraphics, Translator.translatable("hqm.party.invites"), TITLE_X, TITLE_Y, 0x404040);
+
                 int inviteY = PLAYER_Y;
                 for (Team invite : inviteScroll.getVisibleEntries()) {
-                    gui.drawString(matrices, Translator.plain(invite.getName()), PLAYER_X, inviteY, 0x404040);
+                    gui.drawString(guiGraphics, Translator.plain(invite.getName()), PLAYER_X, inviteY, 0x404040);
                     inviteY += PLAYER_SPACING;
                 }
             } else {
-                gui.drawString(matrices, Translator.translatable("hqm.party.noInvites"), TITLE_X, TITLE_Y, 0x404040);
+                gui.drawString(guiGraphics, Translator.translatable("hqm.party.noInvites"), TITLE_X, TITLE_Y, 0x404040);
             }
-            
-            gui.drawString(matrices, Translator.translatable("hqm.party.name"), 180, 20, 0.7F, 0x404040);
+
+            gui.drawString(guiGraphics, Translator.translatable("hqm.party.name"), 180, 20, 0.7F, 0x404040);
         } else {
             boolean isOwner = inviteTeam == null && entry.isOwner();
             Team shownTeam = inviteTeam == null ? team : inviteTeam;
             String title = shownTeam.getName();
-            gui.drawString(matrices, Translator.plain(title), TITLE_X, TITLE_Y, 0x404040);
+            gui.drawString(guiGraphics, Translator.plain(title), TITLE_X, TITLE_Y, 0x404040);
             List<PlayerEntry> players = isOwner ? shownTeam.getPlayers() : shownTeam.getTeamMembers();
-            
+
             int memberY = PLAYER_Y;
             for (PlayerEntry player : memberScroll.getVisibleEntries(players, VISIBLE_MEMBERS)) {
                 MutableComponent text = Translator.text(player.getDisplayName());
@@ -284,7 +284,7 @@ public class TeamMenuGraphic extends Graphic {
                 } else if (!player.isInTeam()) {
                     text.append(" ").append(Translator.box(Translator.translatable("hqm.party.invite")).withStyle(ChatFormatting.GRAY));
                 }
-                
+
                 int color = 0x404040;
                 if (isOwner) {
                     if (player.equals(selectedEntry)) {
@@ -293,57 +293,57 @@ public class TeamMenuGraphic extends Graphic {
                         color = 0x808080;
                     }
                 }
-                gui.drawString(matrices, text, PLAYER_X, memberY, 0.7F, color);
+                gui.drawString(guiGraphics, text, PLAYER_X, memberY, 0.7F, color);
                 memberY += PLAYER_SPACING;
             }
-            
+
             if (inviteTeam == null) {
                 if (entry.isOwner()) {
-                    gui.drawString(matrices, Translator.translatable("hqm.party.playerName"), 180, 20, 0.7F, 0x404040);
-                    
+                    gui.drawString(guiGraphics, Translator.translatable("hqm.party.playerName"), 180, 20, 0.7F, 0x404040);
+
                     if (selectedEntry != null) {
-                        gui.drawString(matrices, gui.getLinesFromText(Translator.translatable("hqm.party.currentSelection", selectedEntry.getDisplayName()), 0.7F, 70), 177, 52, 0.7F, 0x404040);
-                        
+                        gui.drawString(guiGraphics, gui.getLinesFromText(Translator.translatable("hqm.party.currentSelection", selectedEntry.getDisplayName()), 0.7F, 70), 177, 52, 0.7F, 0x404040);
+
                         if (selectedEntry.isOwner()) {
-                            gui.drawString(matrices, gui.getLinesFromText(Translator.translatable("hqm.party.shiftCtrlConfirm"), 0.6F, 70), 177, 162, 0.6F, 0xff5555);
+                            gui.drawString(guiGraphics, gui.getLinesFromText(Translator.translatable("hqm.party.shiftCtrlConfirm"), 0.6F, 70), 177, 162, 0.6F, 0xff5555);
                         }
                     }
-                    
+
                 } else {
-                    gui.drawString(matrices, gui.getLinesFromText(Translator.translatable("hqm.party.shiftConfirm"), 0.7F, 70), 177, 162, 0.7F, 0xff5555);
+                    gui.drawString(guiGraphics, gui.getLinesFromText(Translator.translatable("hqm.party.shiftConfirm"), 0.7F, 70), 177, 162, 0.7F, 0xff5555);
                 }
             }
-            gui.drawString(matrices, gui.getLinesFromText(Translator.translatable("hqm.party.stats"), 0.7F, 70), 177, 192, 0.7F, 0x404040);
-    
+            gui.drawString(guiGraphics, gui.getLinesFromText(Translator.translatable("hqm.party.stats"), 0.7F, 70), 177, 192, 0.7F, 0x404040);
+
             int infoY = getInfoY();
-            
+
             ResourceHelper.bindResource(GuiQuestBook.MAP_TEXTURE);
-            
+
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            gui.drawRect(matrices, INFO_BOX_X, infoY, INFO_BOX_SRC_X, INFO_BOX_SRC_Y, INFO_BOX_SIZE, INFO_BOX_SIZE);
-            gui.drawRect(matrices, INFO_BOX_X, infoY + REWARD_SETTING_Y, INFO_BOX_SRC_X, INFO_BOX_SRC_Y, INFO_BOX_SIZE, INFO_BOX_SIZE);
-            
-            gui.drawString(matrices, Translator.translatable("hqm.party.lifeSetting", shownTeam.getLifeSetting().getTitle()), INFO_BOX_X + INFO_BOX_TEXT_OFFSET_X, infoY + INFO_BOX_TEXT_OFFSET_Y, 0.7F, 0x404040);
-            gui.drawString(matrices, Translator.translatable("hqm.party.rewardSetting", shownTeam.getRewardSetting().getTitle()), INFO_BOX_X + INFO_BOX_TEXT_OFFSET_X, infoY + REWARD_SETTING_Y + INFO_BOX_TEXT_OFFSET_Y, 0.7F, 0x404040);
-            
+            gui.drawRect(guiGraphics, INFO_BOX_X, infoY, INFO_BOX_SRC_X, INFO_BOX_SRC_Y, INFO_BOX_SIZE, INFO_BOX_SIZE);
+            gui.drawRect(guiGraphics, INFO_BOX_X, infoY + REWARD_SETTING_Y, INFO_BOX_SRC_X, INFO_BOX_SRC_Y, INFO_BOX_SIZE, INFO_BOX_SIZE);
+
+            gui.drawString(guiGraphics, Translator.translatable("hqm.party.lifeSetting", shownTeam.getLifeSetting().getTitle()), INFO_BOX_X + INFO_BOX_TEXT_OFFSET_X, infoY + INFO_BOX_TEXT_OFFSET_Y, 0.7F, 0x404040);
+            gui.drawString(guiGraphics, Translator.translatable("hqm.party.rewardSetting", shownTeam.getRewardSetting().getTitle()), INFO_BOX_X + INFO_BOX_TEXT_OFFSET_X, infoY + REWARD_SETTING_Y + INFO_BOX_TEXT_OFFSET_Y, 0.7F, 0x404040);
+
         }
-        
-        
+
+
     }
-    
+
     @Override
-    public void drawTooltip(PoseStack matrices, int mX, int mY) {
-        super.drawTooltip(matrices, mX, mY);
-        
+    public void drawTooltip(GuiGraphics guiGraphics, int mX, int mY) {
+        super.drawTooltip(guiGraphics, mX, mY);
+
         Team team = getTeam();
         PlayerEntry entry = getEntry(team);
         boolean isOwner = inviteTeam == null && entry.isOwner();
-        
+
         if (!team.isSingle() || inviteTeam != null) {
             int infoY = getInfoY();
             Team infoTeam = inviteTeam == null ? team : inviteTeam;
             if (gui.inBounds(INFO_BOX_X, infoY, INFO_BOX_SIZE, INFO_BOX_SIZE, mX, mY)) {
-                
+
                 List<FormattedText> tooltip = new ArrayList<>();
                 tooltip.add(infoTeam.getLifeSetting().getTitle());
                 tooltip.addAll(gui.getLinesFromText(infoTeam.getLifeSetting().getDescription(), 1F, 200));
@@ -351,9 +351,9 @@ public class TeamMenuGraphic extends Graphic {
                     tooltip.add(FormattedText.EMPTY);
                     tooltip.add(Translator.translatable("hqm.party.change").withStyle(ChatFormatting.GOLD));
                 }
-                gui.renderTooltipL(matrices, tooltip, gui.getLeft() + mX, gui.getTop() + mY);
+                gui.renderTooltipL(guiGraphics, tooltip, gui.getLeft() + mX, gui.getTop() + mY);
             } else if (gui.inBounds(INFO_BOX_X, infoY + REWARD_SETTING_Y, INFO_BOX_SIZE, INFO_BOX_SIZE, mX, mY)) {
-                
+
                 List<FormattedText> tooltip = new ArrayList<>();
                 tooltip.add(infoTeam.getRewardSetting().getTitle());
                 tooltip.addAll(gui.getLinesFromText(infoTeam.getRewardSetting().getDescription(), 1F, 200));
@@ -361,17 +361,17 @@ public class TeamMenuGraphic extends Graphic {
                     tooltip.add(FormattedText.EMPTY);
                     tooltip.add(Translator.translatable("hqm.party.change").withStyle(ChatFormatting.GOLD));
                 }
-                
-                gui.renderTooltipL(matrices, tooltip, gui.getLeft() + mX, gui.getTop() + mY);
+
+                gui.renderTooltipL(guiGraphics, tooltip, gui.getLeft() + mX, gui.getTop() + mY);
             }
         }
-        
+
         if (TeamError.latestError != null) {
             if (inviteButton.inButtonBounds(mX, mY)) {
                 List<FormattedText> tooltip = new ArrayList<>();
                 tooltip.add(TeamError.latestError.getHeader());
                 tooltip.addAll(gui.getLinesFromText(TeamError.latestError.getMessage(), 1F, 150));
-                gui.renderTooltipL(matrices, tooltip, mX + gui.getLeft(), mY + gui.getTop());
+                gui.renderTooltipL(guiGraphics, tooltip, mX + gui.getLeft(), mY + gui.getTop());
             } else {
                 TeamError.latestError = null;
             }

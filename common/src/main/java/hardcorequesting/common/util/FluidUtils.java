@@ -6,6 +6,7 @@ import dev.architectury.fluid.FluidStack;
 import hardcorequesting.common.HardcoreQuestingCore;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -50,9 +51,9 @@ public class FluidUtils {
         public static RenderType createFluid(ResourceLocation location) {
             return RenderType.create(
                     HardcoreQuestingCore.ID + ":fluid_type",
-                    DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, true, false,
+                    DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, true, false,
                     RenderType.CompositeState.builder()
-                            .setShaderState(RenderStateShard.POSITION_COLOR_TEX_SHADER)
+                            .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader))
                             .setLightmapState(RenderStateShard.LIGHTMAP)
                             .setTextureState(new RenderStateShard.TextureStateShard(location, false, false))
                             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)

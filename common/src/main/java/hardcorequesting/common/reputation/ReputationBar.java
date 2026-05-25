@@ -1,6 +1,6 @@
 package hardcorequesting.common.reputation;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.ResourceHelper;
 import hardcorequesting.common.client.interfaces.edit.PickReputationMenu;
@@ -62,17 +62,17 @@ public class ReputationBar {
     }
     
     @Environment(EnvType.CLIENT)
-    public void draw(PoseStack matrices, GuiQuestBook gui, int mX, int mY, UUID playerId) {
+    public void draw(GuiGraphics guiGraphics, GuiQuestBook gui, int mX, int mY, UUID playerId) {
         Reputation reputation = ReputationManager.getInstance().getReputation(this.repId);
         if (reputation == null) return;
-        
+
         gui.applyColor(0xFFFFFFFF);
         ResourceHelper.bindResource(GuiQuestBook.MAP_TEXTURE);
-    
-        FormattedText info = reputation.drawAndGetTooltip(matrices, gui, this.x, this.y, mX, mY, null, playerId, false, null, null, false, null, null, false);
-        
+
+        FormattedText info = reputation.drawAndGetTooltip(guiGraphics, gui, this.x, this.y, mX, mY, null, playerId, false, null, null, false, null, null, false);
+
         if (info != null) {
-            gui.renderTooltip(matrices, info, mX + gui.getLeft(), mY + gui.getTop());
+            gui.renderTooltip(guiGraphics, info, mX + gui.getLeft(), mY + gui.getTop());
         }
     }
     

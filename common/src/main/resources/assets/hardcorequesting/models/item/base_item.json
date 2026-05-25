@@ -1,5 +1,5 @@
 {
-  "parent":"item/generated",
+  "parent":"minecraft:item/generated",
   "display": {
     "thirdperson": {
       "rotation": [ -90, 0, 0 ],

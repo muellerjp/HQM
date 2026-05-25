@@ -1,7 +1,7 @@
 package hardcorequesting.common.client.interfaces;
 
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.bag.LootGroup;
 import hardcorequesting.common.config.HQMConfig;
 import hardcorequesting.common.items.BagItem;
@@ -16,6 +16,7 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
@@ -89,27 +90,25 @@ public class GuiReward extends GuiBase {
     }
     
     @Override
-    public void render(PoseStack matrices, int mX0, int mY0, float f) {
+    public void render(GuiGraphics guiGraphics, int mX0, int mY0, float f) {
         applyColor(0xFFFFFFFF);
-        ResourceHelper.bindResource(TEXTURE);
-        
-        
+
         int height = TOP_HEIGHT + MIDDLE_HEIGHT * lines + BOTTOM_HEIGHT;
         this.left = (this.width - TEXTURE_WIDTH) / 2;
         this.top = (this.height - height) / 2;
-        
-        drawRect(matrices, 0, 0, 0, TOP_SRC_Y, TEXTURE_WIDTH, TOP_HEIGHT);
+
+        drawRect(guiGraphics, TEXTURE, 0, 0, 0, TOP_SRC_Y, TEXTURE_WIDTH, TOP_HEIGHT);
         for (int i = 0; i < lines; i++) {
-            drawRect(matrices, 0, TOP_HEIGHT + i * MIDDLE_HEIGHT, 0, MIDDLE_SRC_Y, TEXTURE_WIDTH, MIDDLE_HEIGHT);
+            drawRect(guiGraphics, TEXTURE, 0, TOP_HEIGHT + i * MIDDLE_HEIGHT, 0, MIDDLE_SRC_Y, TEXTURE_WIDTH, MIDDLE_HEIGHT);
         }
-        drawRect(matrices, 0, TOP_HEIGHT + lines * MIDDLE_HEIGHT, 0, BOTTOM_SRC_Y, TEXTURE_WIDTH, BOTTOM_HEIGHT);
-        
-        
+        drawRect(guiGraphics, TEXTURE, 0, TOP_HEIGHT + lines * MIDDLE_HEIGHT, 0, BOTTOM_SRC_Y, TEXTURE_WIDTH, BOTTOM_HEIGHT);
+
+
         int mX = mX0 - left;
         int mY = mY0 - top;
-    
+
         FormattedText title;
-        
+
         // fall back to the tier's name if this particular reward has no title,
         // or if the user explicitly asked us to do so.
         if (HQMConfig.getInstance().Loot.ALWAYS_USE_TIER || !group.hasName()) {
@@ -117,36 +116,35 @@ public class GuiReward extends GuiBase {
         } else {
             title = group.getDisplayName();
         }
-        
-        drawCenteredString(matrices, title, 0, 0, 1F, TEXTURE_WIDTH, TITLE_HEIGHT, group.getTier().getColor().getHexColor());
-        drawCenteredString(matrices, statisticsText, 0, TITLE_HEIGHT, 0.7F, TEXTURE_WIDTH, TOP_HEIGHT - TITLE_HEIGHT, 0x707070);
-        drawCenteredString(matrices, Translator.translatable("hqm.rewardGui.close"), 0, TOP_HEIGHT + lines * MIDDLE_HEIGHT, 0.7F, TEXTURE_WIDTH, BOTTOM_HEIGHT, 0x707070);
-        
+
+        drawCenteredString(guiGraphics, title, 0, 0, 1F, TEXTURE_WIDTH, TITLE_HEIGHT, group.getTier().getColor().getHexColor());
+        drawCenteredString(guiGraphics, statisticsText, 0, TITLE_HEIGHT, 0.7F, TEXTURE_WIDTH, TOP_HEIGHT - TITLE_HEIGHT, 0x707070);
+        drawCenteredString(guiGraphics, Translator.translatable("hqm.rewardGui.close"), 0, TOP_HEIGHT + lines * MIDDLE_HEIGHT, 0.7F, TEXTURE_WIDTH, BOTTOM_HEIGHT, 0x707070);
+
         for (Reward reward : rewards) {
             try {
-                drawItemStack(reward.stack, reward.x, reward.y, true);
-                //itemRenderer.renderItemOverlayIntoGUI(fontRendererObj, MinecraftClient.getInstance().getTextureManager(), reward.stack, reward.x + left + 1, reward.y + top + 1);
-                itemRenderer.renderGuiItemDecorations(font, reward.stack, (reward.x + left + 1), (reward.y + top + 1), "");
+                drawItemStack(guiGraphics, reward.stack, reward.x, reward.y, true);
+                guiGraphics.renderItemDecorations(font, reward.stack, (reward.x + left + 1), (reward.y + top + 1), "");
             } catch (Throwable ignored) {
             }
         }
-        
+
         for (Reward reward : rewards) {
             if (inBounds(reward.x, reward.y, ITEM_SIZE, ITEM_SIZE, mX, mY)) {
                 try {
                     if (Screen.hasShiftDown()) {
-                        renderTooltip(matrices, reward.stack, mX0, mY0);
+                        renderTooltip(guiGraphics, reward.stack, mX0, mY0);
                     } else {
                         List<FormattedCharSequence> str = new ArrayList<>();
                         try {
-                            List<Component> info = reward.stack.getTooltipLines(Minecraft.getInstance().player, minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
+                            List<Component> info = reward.stack.getTooltipLines(Item.TooltipContext.EMPTY, Minecraft.getInstance().player, minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
                             if (info.size() > 0) {
                                 str.add(Language.getInstance().getVisualOrder(info.get(0)));
                                 if (info.size() > 1) {
                                     str.add(Language.getInstance().getVisualOrder(Translator.translatable("hqm.rewardGui.shiftInfo").withStyle(ChatFormatting.DARK_GRAY)));
                                 }
                             }
-                            renderTooltip(matrices, str, mX0, mY0);
+                            renderTooltip(guiGraphics, str, mX0, mY0);
                         } catch (Throwable ignored) {
                         }
                     }

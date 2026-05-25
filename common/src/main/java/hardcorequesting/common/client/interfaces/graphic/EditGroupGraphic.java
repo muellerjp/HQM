@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.bag.LootGroup;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
@@ -37,40 +37,40 @@ public class EditGroupGraphic extends EditableGraphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-        
-        gui.drawString(matrices, group.getDisplayName(), EditBagsGraphic.GROUPS_X, EditBagsGraphic.GROUPS_Y, group.getTier().getColor().getHexColor());
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
+        gui.drawString(guiGraphics, group.getDisplayName(), EditBagsGraphic.GROUPS_X, EditBagsGraphic.GROUPS_Y, group.getTier().getColor().getHexColor());
         List<ItemStack> items = new ArrayList<>(group.getItems());
         items.add(ItemStack.EMPTY);
         for (int i = 0; i < items.size(); i++) {
             ItemStack stack = items.get(i);
-            
+
             int xPos = (i % ITEMS_PER_LINE) * GROUP_ITEMS_SPACING + GROUP_ITEMS_X;
             int yPos = (i / ITEMS_PER_LINE) * GROUP_ITEMS_SPACING + GROUP_ITEMS_Y;
-            
-            gui.drawItemStack(matrices, stack, xPos, yPos, mX, mY, false);
+
+            gui.drawItemStack(guiGraphics, stack, xPos, yPos, mX, mY, false);
         }
-        
+
         for (int i = 0; i < items.size(); i++) {
             ItemStack stack = items.get(i);
-            
+
             int xPos = (i % ITEMS_PER_LINE) * GROUP_ITEMS_SPACING + GROUP_ITEMS_X;
             int yPos = (i / ITEMS_PER_LINE) * GROUP_ITEMS_SPACING + GROUP_ITEMS_Y;
-            
+
             if (gui.inBounds(xPos, yPos, GuiQuestBook.ITEM_SIZE, GuiQuestBook.ITEM_SIZE, mX, mY)) {
                 if (!stack.isEmpty()) {
                     try {
-                        gui.renderTooltip(matrices, stack, mX + gui.getLeft(), mY + gui.getTop());
+                        gui.renderTooltip(guiGraphics, stack, mX + gui.getLeft(), mY + gui.getTop());
                     } catch (Exception ignored) {
                     }
                 }
                 break;
             }
         }
-        
-        gui.drawString(matrices, Translator.translatable("hqm.questBook.maxRetrieval"), 180, 20, 0x404040);
-        gui.drawString(matrices, Translator.translatable("hqm.questBook.noRestriction"), 180, 48, 0.7F, 0x404040);
+
+        gui.drawString(guiGraphics, Translator.translatable("hqm.questBook.maxRetrieval"), 180, 20, 0x404040);
+        gui.drawString(guiGraphics, Translator.translatable("hqm.questBook.noRestriction"), 180, 48, 0.7F, 0x404040);
     }
     
     @Override

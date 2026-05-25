@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.graphic.task;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import com.mojang.datafixers.util.Either;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiBase;
@@ -20,7 +20,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 
@@ -105,20 +105,20 @@ public class ItemTaskGraphic extends ListTaskGraphic<ItemRequirementTask.Part> {
     }
     
     @Override
-    protected void drawPart(PoseStack matrices, ItemRequirementTask.Part part, int id, int x, int y, int mX, int mY) {
-        part.stack.ifLeft(itemStack -> gui.drawItemStack(matrices, part.getPermutatedItem(), x, y, mX, mY, false))
-                .ifRight(fluidStack -> gui.drawFluid(fluidStack, matrices, x, y, mX, mY));
-    
+    protected void drawPart(GuiGraphics guiGraphics, ItemRequirementTask.Part part, int id, int x, int y, int mX, int mY) {
+        part.stack.ifLeft(itemStack -> gui.drawItemStack(guiGraphics, part.getPermutatedItem(), x, y, mX, mY, false))
+                .ifRight(fluidStack -> gui.drawFluid(fluidStack, guiGraphics, x, y, mX, mY));
+
         FormattedText progressText = Translator.plain((task.getProgress(playerId, id) * 100 / part.required) + "%");
-        matrices.pushPose();
-        matrices.translate(0, 0, 200);// magic z value to write over stack render
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, 200);// magic z value to write over stack render
         float textSize = 0.8F;
         boolean hasCountLine = part.stack.left().map(itemStack -> itemStack.getCount() > 1).orElse(false);
-        gui.drawStringWithShadow(matrices, progressText,
+        gui.drawStringWithShadow(guiGraphics, progressText,
                 (int) (x + SIZE - gui.getStringWidth(progressText) * textSize),
                 (int) (y + SIZE - (hasCountLine ? GuiBase.TEXT_HEIGHT : 0) - GuiBase.TEXT_HEIGHT * textSize + 2),
                 textSize, task.getProgress(playerId, id) == part.required ? 0x308030 : 0xFFFFFF);
-        matrices.popPose();
+        guiGraphics.pose().popPose();
     }
     
     @Override
@@ -130,11 +130,11 @@ public class ItemTaskGraphic extends ListTaskGraphic<ItemRequirementTask.Part> {
                 List<Component> list = new ArrayList<>();
                 str.add(Component.literal(fluidStack.getName().getString()));
                 if (Minecraft.getInstance().options.advancedItemTooltips) {
-                    String entryId = Registry.FLUID.getKey(fluidStack.getFluid()).toString();
+                    String entryId = BuiltInRegistries.FLUID.getKey(fluidStack.getFluid()).toString();
                     list.add(Component.literal(entryId).withStyle(ChatFormatting.DARK_GRAY));
                 }
                 str.addAll(list);
-            }).ifLeft(itemStack -> str.addAll(gui.getTooltipFromItem(itemStack)));
+            }).ifLeft(itemStack -> str.addAll(net.minecraft.client.gui.screens.Screen.getTooltipFromItem(net.minecraft.client.Minecraft.getInstance(), itemStack)));
         
             str.add(FormattedText.composite(Translator.translatable("hqm.questBook.itemRequirementProgress"), Translator.plain(": " + task.getProgress(playerId, id) + "/" + part.required)));
             if (part.hasItem() && Quest.canQuestsBeEdited()) {

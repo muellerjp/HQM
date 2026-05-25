@@ -27,7 +27,7 @@ public class BagItem extends Item {
     public int tierOrdinal;
     
     public BagItem(BagTier tier) {
-        super(new Item.Properties().durability(0).stacksTo(64).tab(ModCreativeTabs.HQMTab));
+        super(new Item.Properties().stacksTo(64));
         this.tier = tier;
         this.tierOrdinal = tier.ordinal();
     }
@@ -71,8 +71,8 @@ public class BagItem extends Item {
     
     @Environment(EnvType.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
-        super.appendHoverText(stack, world, tooltip, context);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
         
         tooltip.add(tier.getColoredName());
     }

@@ -1,7 +1,7 @@
 package hardcorequesting.common.client.interfaces.graphic;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.ClientChange;
 import hardcorequesting.common.client.EditMode;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
@@ -25,6 +25,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
@@ -86,61 +87,61 @@ public class QuestRewardsGraphic extends Graphic {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
         QuestData data = quest.getQuestData(playerId);
-        
+
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (selectedReward != -1 && !rewards.hasReward(data, playerId)) {
             selectedReward = -1;
         }
-        
-        drawItemRewards(matrices, mX, mY);
-        
-        super.draw(matrices, mX, mY);
-        
-        drawReputationIcon(matrices, mX, mY, data);
+
+        drawItemRewards(guiGraphics, mX, mY);
+
+        super.draw(guiGraphics, mX, mY);
+
+        drawReputationIcon(guiGraphics, mX, mY, data);
     }
-    
+
     @Override
-    public void drawTooltip(PoseStack matrices, int mX, int mY) {
-        
-        drawItemRewardTooltips(matrices, mX, mY);
-    
-        super.drawTooltip(matrices, mX, mY);
-        
-        drawRepIconTooltip(matrices, mX, mY);
+    public void drawTooltip(GuiGraphics guiGraphics, int mX, int mY) {
+
+        drawItemRewardTooltips(guiGraphics, mX, mY);
+
+        super.drawTooltip(guiGraphics, mX, mY);
+
+        drawRepIconTooltip(guiGraphics, mX, mY);
     }
-    
-    private void drawItemRewards(PoseStack matrices, int mX, int mY) {
+
+    private void drawItemRewards(GuiGraphics guiGraphics, int mX, int mY) {
         NonNullList<ItemStack> itemRewards = rewards.getReward();
         NonNullList<ItemStack> choiceRewards = rewards.getRewardChoice();
         if (!itemRewards.isEmpty() || Quest.canQuestsBeEdited()) {
-            gui.drawString(matrices, Translator.translatable("hqm.quest.rewards"), START_X, REWARD_STR_Y, 0x404040);
-            drawRewards(matrices, gui, itemRewards, REWARD_Y, -1, mX, mY, MAX_REWARD_SLOTS);
+            gui.drawString(guiGraphics, Translator.translatable("hqm.quest.rewards"), START_X, REWARD_STR_Y, 0x404040);
+            drawRewards(guiGraphics, gui, itemRewards, REWARD_Y, -1, mX, mY, MAX_REWARD_SLOTS);
             if (!choiceRewards.isEmpty() || Quest.canQuestsBeEdited()) {
-                gui.drawString(matrices, Translator.translatable("hqm.quest.pickOne"), START_X, REWARD_STR_Y + REWARD_Y_OFFSET, 0x404040);
-                drawRewards(matrices, gui, choiceRewards, REWARD_Y + REWARD_Y_OFFSET, selectedReward, mX, mY, MAX_SELECT_REWARD_SLOTS);
+                gui.drawString(guiGraphics, Translator.translatable("hqm.quest.pickOne"), START_X, REWARD_STR_Y + REWARD_Y_OFFSET, 0x404040);
+                drawRewards(guiGraphics, gui, choiceRewards, REWARD_Y + REWARD_Y_OFFSET, selectedReward, mX, mY, MAX_SELECT_REWARD_SLOTS);
             }
         } else if (!choiceRewards.isEmpty()) {
-            gui.drawString(matrices, Translator.translatable("hqm.quest.pickOneReward"), START_X, REWARD_STR_Y, 0x404040);
-            drawRewards(matrices, gui, choiceRewards, REWARD_Y, selectedReward, mX, mY, MAX_SELECT_REWARD_SLOTS);
+            gui.drawString(guiGraphics, Translator.translatable("hqm.quest.pickOneReward"), START_X, REWARD_STR_Y, 0x404040);
+            drawRewards(guiGraphics, gui, choiceRewards, REWARD_Y, selectedReward, mX, mY, MAX_SELECT_REWARD_SLOTS);
         }
     }
-    
-    private void drawItemRewardTooltips(PoseStack matrices, int mX, int mY) {
+
+    private void drawItemRewardTooltips(GuiGraphics guiGraphics, int mX, int mY) {
         NonNullList<ItemStack> itemRewards = rewards.getReward();
         NonNullList<ItemStack> choiceRewards = rewards.getRewardChoice();
         if (!itemRewards.isEmpty() || Quest.canQuestsBeEdited()) {
-            drawRewardMouseOver(matrices, gui, itemRewards, REWARD_Y, -1, mX, mY);
+            drawRewardMouseOver(guiGraphics, gui, itemRewards, REWARD_Y, -1, mX, mY);
             if (!choiceRewards.isEmpty() || Quest.canQuestsBeEdited()) {
-                drawRewardMouseOver(matrices, gui, choiceRewards, REWARD_Y + REWARD_Y_OFFSET, selectedReward, mX, mY);
+                drawRewardMouseOver(guiGraphics, gui, choiceRewards, REWARD_Y + REWARD_Y_OFFSET, selectedReward, mX, mY);
             }
         } else if (!choiceRewards.isEmpty()) {
-            drawRewardMouseOver(matrices, gui, choiceRewards, REWARD_Y, selectedReward, mX, mY);
+            drawRewardMouseOver(guiGraphics, gui, choiceRewards, REWARD_Y, selectedReward, mX, mY);
         }
     }
-    
-    private void drawReputationIcon(PoseStack matrices, int mX, int mY, QuestData data) {
+
+    private void drawReputationIcon(GuiGraphics guiGraphics, int mX, int mY, QuestData data) {
         List<ReputationReward> reputationRewards = rewards.getReputationRewards();
         
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -173,12 +174,12 @@ public class QuestRewardsGraphic extends Graphic {
             
             int y = getRepIconY();
             foregroundIndex += 3;
-            gui.drawRect(matrices, REPUTATION_X, y, REPUTATION_SRC_X + backgroundIndex * REPUTATION_SIZE, REPUTATION_SRC_Y, REPUTATION_SIZE, REPUTATION_SIZE);
-            gui.drawRect(matrices, REPUTATION_X, y, REPUTATION_SRC_X + foregroundIndex * REPUTATION_SIZE, REPUTATION_SRC_Y, REPUTATION_SIZE, REPUTATION_SIZE);
+            gui.drawRect(guiGraphics, REPUTATION_X, y, REPUTATION_SRC_X + backgroundIndex * REPUTATION_SIZE, REPUTATION_SRC_Y, REPUTATION_SIZE, REPUTATION_SIZE);
+            gui.drawRect(guiGraphics, REPUTATION_X, y, REPUTATION_SRC_X + foregroundIndex * REPUTATION_SIZE, REPUTATION_SRC_Y, REPUTATION_SIZE, REPUTATION_SIZE);
         }
     }
     
-    private void drawRepIconTooltip(PoseStack matrices, int mX, int mY) {
+    private void drawRepIconTooltip(GuiGraphics guiGraphics, int mX, int mY) {
         QuestData data = quest.getQuestData(playerId);
         List<ReputationReward> reputationRewards = rewards.getReputationRewards();
         if (reputationRewards != null && isOnReputationIcon(gui, mX, mY)) {
@@ -188,7 +189,7 @@ public class QuestRewardsGraphic extends Graphic {
                     str.add(reputationReward.getLabel());
                 }
             }
-            
+
             List<FormattedText> commentLines = gui.getLinesFromText(Translator.translatable("hqm.quest.partyRepReward" + (data.teamRewardClaimed ? "Claimed" : "")), 1, 200);
             if (commentLines != null) {
                 str.add(FormattedText.EMPTY);
@@ -196,7 +197,7 @@ public class QuestRewardsGraphic extends Graphic {
                     str.add(Translator.text(Translator.rawString(commentLine)).withStyle(ChatFormatting.DARK_GRAY));
                 }
             }
-            gui.renderTooltipL(matrices, str, mX + gui.getLeft(), mY + gui.getTop());
+            gui.renderTooltipL(guiGraphics, str, mX + gui.getLeft(), mY + gui.getTop());
         }
     }
     
@@ -240,26 +241,25 @@ public class QuestRewardsGraphic extends Graphic {
         }
     }
     
-    private void drawRewards(PoseStack matrices, GuiQuestBook gui, NonNullList<ItemStack> rewards, int y, int selected, int mX, int mY, int max) {
+    private void drawRewards(GuiGraphics guiGraphics, GuiQuestBook gui, NonNullList<ItemStack> rewards, int y, int selected, int mX, int mY, int max) {
         rewards = getEditFriendlyRewards(rewards, max);
-        
-        
+
         for (int i = 0; i < rewards.size(); i++) {
-            gui.drawItemStack(matrices, rewards.get(i), START_X + i * REWARD_OFFSET, y, mX, mY, selected == i);
+            gui.drawItemStack(guiGraphics, rewards.get(i), START_X + i * REWARD_OFFSET, y, mX, mY, selected == i);
         }
     }
-    
-    private void drawRewardMouseOver(PoseStack matrices, GuiQuestBook gui, NonNullList<ItemStack> rewards, int y, int selected, int mX, int mY) {
+
+    private void drawRewardMouseOver(GuiGraphics guiGraphics, GuiQuestBook gui, NonNullList<ItemStack> rewards, int y, int selected, int mX, int mY) {
         if (rewards != null) {
             for (int i = 0; i < rewards.size(); i++) {
                 if (gui.inBounds(START_X + i * REWARD_OFFSET, y, ITEM_SIZE, ITEM_SIZE, mX, mY)) {
                     if (!rewards.get(i).isEmpty()) {
-                        List<Component> str = rewards.get(i).getTooltipLines(Minecraft.getInstance().player, Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
+                        List<Component> str = rewards.get(i).getTooltipLines(Item.TooltipContext.EMPTY, Minecraft.getInstance().player, Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
                         if (selected == i) {
                             str.add(Component.empty());
                             str.add(Translator.translatable("hqm.quest.selected").withStyle(ChatFormatting.DARK_GREEN));
                         }
-                        gui.renderComponentTooltip(matrices, str, gui.getLeft() + mX, gui.getTop() + mY);
+                        gui.renderComponentTooltip(guiGraphics, str, gui.getLeft() + mX, gui.getTop() + mY);
                     }
                     break;
                 }

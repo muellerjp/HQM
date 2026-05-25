@@ -1,32 +1,32 @@
 package hardcorequesting.common.recipe;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
 import hardcorequesting.common.items.crafting.BookCatalystRecipe;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 
-/**
- * Same as the corresponding class in the forge module, but does not extend ForgeRegistryEntry
- */
 public class BookCatalystRecipeSerializer implements RecipeSerializer<BookCatalystRecipe> {
+
+    private static final MapCodec<BookCatalystRecipe> CODEC = RecipeSerializer.SHAPED_RECIPE.codec().xmap(
+            BookCatalystRecipe::new,
+            BookCatalystRecipe::inner
+    );
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, BookCatalystRecipe> STREAM_CODEC =
+            RecipeSerializer.SHAPED_RECIPE.streamCodec().map(
+                    BookCatalystRecipe::new,
+                    BookCatalystRecipe::inner
+            );
+
     @Override
-    public BookCatalystRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-        ShapedRecipe recipe = RecipeSerializer.SHAPED_RECIPE.fromJson(recipeId, json);
-    
-        return new BookCatalystRecipe(recipe.getId(), recipe.getGroup(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), recipe.getResultItem());
+    public MapCodec<BookCatalystRecipe> codec() {
+        return CODEC;
     }
-    
+
     @Override
-    public BookCatalystRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
-        ShapedRecipe recipe = RecipeSerializer.SHAPED_RECIPE.fromNetwork(recipeId, buffer);
-    
-        return new BookCatalystRecipe(recipe.getId(), recipe.getGroup(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), recipe.getResultItem());
-    }
-    
-    @Override
-    public void toNetwork(FriendlyByteBuf buffer, BookCatalystRecipe recipe) {
-        RecipeSerializer.SHAPED_RECIPE.toNetwork(buffer, recipe);
+    public StreamCodec<RegistryFriendlyByteBuf, BookCatalystRecipe> streamCodec() {
+        return STREAM_CODEC;
     }
 }

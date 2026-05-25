@@ -2,13 +2,13 @@ package hardcorequesting.common.client.interfaces.edit;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.client.interfaces.ResourceHelper;
 import hardcorequesting.common.client.interfaces.widget.*;
 import hardcorequesting.common.quests.task.icon.TameMobsTask;
 import hardcorequesting.common.util.Translator;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -91,7 +91,7 @@ public class PickMobMenu extends GuiEditMenu {
         rawMobs = new ArrayList<>();
         mobs = new ArrayList<>();
         
-        for (EntityType<?> type : Registry.ENTITY_TYPE) {
+        for (EntityType<?> type : BuiltInRegistries.ENTITY_TYPE) {
             if (type.canSummon()) {
                 rawMobs.add(new Entry(type));
             }
@@ -122,25 +122,25 @@ public class PickMobMenu extends GuiEditMenu {
     }
     
     @Override
-    public void draw(PoseStack matrices, int mX, int mY) {
-        super.draw(matrices, mX, mY);
-        
+    public void draw(GuiGraphics guiGraphics, int mX, int mY) {
+        super.draw(guiGraphics, mX, mY);
+
         ResourceHelper.bindResource(GuiQuestBook.MAP_TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        
+
         int mobY = START_Y;
         for (Entry entry : scrollBar.getVisibleEntries()) {
             boolean selected = entry.equals(mob);
             boolean inBounds = gui.inBounds(START_X, mobY, 130, 6, mX, mY);
-            
-            gui.drawString(matrices, entry.description, START_X, mobY, 0.7F, selected ? inBounds ? 0xC0C0C0 : 0xA0A0A0 : inBounds ? 0x707070 : 0x404040);
+
+            gui.drawString(guiGraphics, entry.description, START_X, mobY, 0.7F, selected ? inBounds ? 0xC0C0C0 : 0xA0A0A0 : inBounds ? 0x707070 : 0x404040);
             mobY += OFFSET_Y;
         }
-        
-        gui.drawString(matrices, Translator.translatable("hqm." + textKey + ".search"), 180, 20, 0x404040);
-        gui.drawString(matrices, Translator.translatable("hqm." + textKey + "." + (mob == null ? "nothing" : "currently") + "Selected"), 180, 40, 0x404040);
+
+        gui.drawString(guiGraphics, Translator.translatable("hqm." + textKey + ".search"), 180, 20, 0x404040);
+        gui.drawString(guiGraphics, Translator.translatable("hqm." + textKey + "." + (mob == null ? "nothing" : "currently") + "Selected"), 180, 40, 0x404040);
         if (mob != null) {
-            gui.drawString(matrices, mob.description, 180, 50, 0.7F, 0x404040);
+            gui.drawString(guiGraphics, mob.description, 180, 50, 0.7F, 0x404040);
         }
     }
     
@@ -190,7 +190,7 @@ public class PickMobMenu extends GuiEditMenu {
         private final FormattedText description;
     
         private Entry(EntityType<?> type) {
-            this.id = Registry.ENTITY_TYPE.getKey(type);
+            this.id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
             this.description = type.getDescription();
         }
         

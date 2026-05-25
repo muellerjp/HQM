@@ -1,6 +1,6 @@
 package hardcorequesting.common.reputation;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.client.interfaces.GuiQuestBook;
 import hardcorequesting.common.quests.Quest;
 import hardcorequesting.common.quests.QuestingDataManager;
@@ -94,18 +94,18 @@ public class Reputation {
     }
     
     @Environment(EnvType.CLIENT)
-    public FormattedText drawAndGetTooltip(PoseStack matrices, GuiQuestBook gui, int x, int y, int mX, int mY, FormattedText info, UUID playerId, boolean effects, ReputationMarker lower, ReputationMarker upper, boolean inverted, ReputationMarker active, FormattedText text, boolean completed) {
-        draw(matrices, gui, x, y, mX, mY, playerId, effects, lower, upper, inverted, active, text, completed);
+    public FormattedText drawAndGetTooltip(GuiGraphics guiGraphics, GuiQuestBook gui, int x, int y, int mX, int mY, FormattedText info, UUID playerId, boolean effects, ReputationMarker lower, ReputationMarker upper, boolean inverted, ReputationMarker active, FormattedText text, boolean completed) {
+        draw(guiGraphics, gui, x, y, mX, mY, playerId, effects, lower, upper, inverted, active, text, completed);
         return info != null ? info : getTooltip(gui, x, y, mX, mY, playerId);
     }
-    
+
     @Environment(EnvType.CLIENT)
-    public void draw(PoseStack matrices, GuiQuestBook gui, int x, int y, int mX, int mY, UUID playerId, boolean effects, ReputationMarker lower, ReputationMarker upper, boolean inverted, ReputationMarker active, FormattedText text, boolean completed) {
+    public void draw(GuiGraphics guiGraphics, GuiQuestBook gui, int x, int y, int mX, int mY, UUID playerId, boolean effects, ReputationMarker lower, ReputationMarker upper, boolean inverted, ReputationMarker active, FormattedText text, boolean completed) {
         FormattedText error = getError();
-        
+
         if (error != null) {
-            gui.drawRect(matrices, x + BAR_X, y + BAR_Y, BAR_SRC_X, BAR_SRC_Y, BAR_WIDTH, BAR_HEIGHT);
-            gui.drawString(matrices, error, x + TEXT_X, y + TEXT_Y, 0.7F, 0xff5555);
+            gui.drawRect(guiGraphics, x + BAR_X, y + BAR_Y, BAR_SRC_X, BAR_SRC_Y, BAR_WIDTH, BAR_HEIGHT);
+            gui.drawString(guiGraphics, error, x + TEXT_X, y + TEXT_Y, 0.7F, 0xff5555);
             return;
         }
         
@@ -174,7 +174,7 @@ public class Reputation {
             selectedSrcY = BAR_SRC_Y;
         }
         
-        gui.drawRect(matrices, x + BAR_X, y + BAR_Y, BAR_SRC_X, normalSrcY, BAR_WIDTH, BAR_HEIGHT);
+        gui.drawRect(guiGraphics, x + BAR_X, y + BAR_Y, BAR_SRC_X, normalSrcY, BAR_WIDTH, BAR_HEIGHT);
         if (effects) {
             int leftX = getPointerPosition(lowerValue, lowerOnMarker);
             if (lowerMoved) {
@@ -184,34 +184,34 @@ public class Reputation {
             if (upperMoved) {
                 rightX -= upperMovedInner ? 1 : ARROW_MARKER_OFFSET;
             }
-            gui.drawRect(matrices, x + BAR_X + leftX, y + BAR_Y, BAR_SRC_X + leftX, selectedSrcY, rightX - leftX, BAR_HEIGHT);
+            gui.drawRect(guiGraphics, x + BAR_X + leftX, y + BAR_Y, BAR_SRC_X + leftX, selectedSrcY, rightX - leftX, BAR_HEIGHT);
         }
-        
+
         for (int i = 0; i < markers.size(); i++) {
             int position = i * (BAR_WIDTH - ARROW_MARKER_OFFSET * 2) / (markers.size() - 1);
             int markerX = x + BAR_X - ARROW_SIZE / 2 + position + ARROW_MARKER_OFFSET;
-            
+
             int markerY = y + BAR_Y + ARROW_MARKER_Y;
             int srcX = ARROW_SRC_MARKER_X;
             int value = markers.get(i).getValue();
             if (gui.inBounds(markerX, markerY, ARROW_SIZE, ARROW_SIZE, mX, mY)) {
                 srcX += ARROW_SIZE;
             }
-            
+
             boolean selected = markers.get(i).equals(active) || (effects && ((lowerValue <= value && value <= upperValue) != inverted));
-            gui.drawRect(matrices, markerX, markerY, srcX, ARROW_SRC_Y + (selected ? -ARROW_SIZE : 0), ARROW_SIZE, ARROW_SIZE);
+            gui.drawRect(guiGraphics, markerX, markerY, srcX, ARROW_SRC_Y + (selected ? -ARROW_SIZE : 0), ARROW_SIZE, ARROW_SIZE);
         }
-        
+
         ReputationMarker current = null;
         int value = 0;
         if (playerId != null) {
             value = getValue(playerId);
             current = getCurrentMarker(value);
-    
-    
-            drawPointer(matrices, gui, value, x, y, ARROW_POINTER_Y, ARROW_SRC_POINTER_X, mX, mY, false);
+
+
+            drawPointer(guiGraphics, gui, value, x, y, ARROW_POINTER_Y, ARROW_SRC_POINTER_X, mX, mY, false);
         }
-        drawPointer(matrices, gui, 0, x, y, ARROW_MARKER_Y, ARROW_SRC_NEUTRAL_X, mX, mY, neutral.equals(active) || (effects && ((lowerValue <= 0 && 0 <= upperValue) != inverted)));
+        drawPointer(guiGraphics, gui, 0, x, y, ARROW_MARKER_Y, ARROW_SRC_NEUTRAL_X, mX, mY, neutral.equals(active) || (effects && ((lowerValue <= 0 && 0 <= upperValue) != inverted)));
         
         FormattedText info;
         boolean selected = false;
@@ -251,7 +251,7 @@ public class Reputation {
             selected = completed || (effects && ((lowerValue <= current.getValue() && current.getValue() <= upperValue) != inverted));
         }
         
-        gui.drawString(matrices, info, x + TEXT_X, y + TEXT_Y, 0.7F, selected ? 0x40AA40 : 0x404040);
+        gui.drawString(guiGraphics, info, x + TEXT_X, y + TEXT_Y, 0.7F, selected ? 0x40AA40 : 0x404040);
     }
     
     @Environment(EnvType.CLIENT)
@@ -330,13 +330,13 @@ public class Reputation {
     }
     
     @Environment(EnvType.CLIENT)
-    private void drawPointer(PoseStack matrices, GuiQuestBook gui, int value, int x, int y, int offsetY, int srcX, int mX, int mY, boolean selectedTexture) {
+    private void drawPointer(GuiGraphics guiGraphics, GuiQuestBook gui, int value, int x, int y, int offsetY, int srcX, int mX, int mY, boolean selectedTexture) {
         int pointerX = x + BAR_X - ARROW_SIZE / 2 + getPointerPosition(value, true);
         int pointerY = y + BAR_Y + offsetY;
         if (gui.inBounds(pointerX, pointerY, ARROW_SIZE, ARROW_SIZE, mX, mY)) {
             srcX += ARROW_SIZE;
         }
-        gui.drawRect(matrices, pointerX, pointerY, srcX, ARROW_SRC_Y + (selectedTexture ? -ARROW_SIZE : 0), ARROW_SIZE, ARROW_SIZE);
+        gui.drawRect(guiGraphics, pointerX, pointerY, srcX, ARROW_SRC_Y + (selectedTexture ? -ARROW_SIZE : 0), ARROW_SIZE, ARROW_SIZE);
     }
     
     @Environment(EnvType.CLIENT)

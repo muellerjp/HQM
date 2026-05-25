@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -22,10 +22,10 @@ public class TextBoxGroup implements Drawable, Clickable {
     }
     
     @Override
-    public void render(PoseStack matrices, int mX, int mY) {
+    public void render(GuiGraphics guiGraphics, int mX, int mY) {
         for (TextBox textBox : textBoxes) {
             if (textBox.isVisible()) {
-                textBox.draw(matrices, selectedTextBox == textBox, mX, mY);
+                textBox.draw(guiGraphics, selectedTextBox == textBox, mX, mY);
             }
         }
     }

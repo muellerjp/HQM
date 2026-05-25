@@ -1,6 +1,6 @@
 package hardcorequesting.common.client.interfaces;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import hardcorequesting.common.HardcoreQuestingCore;
 import hardcorequesting.common.client.BookPage;
 import hardcorequesting.common.client.EditMode;
@@ -100,9 +100,7 @@ public class GuiQuestBook extends GuiBase {
         if (pageGraphic == null)
             pageGraphic = page.createGraphic(this);
     
-        if (Quest.canQuestsBeEdited()) {
-            minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        }
+        // setSendRepeatsToGui removed in MC 1.20
         QuestingData data = QuestingDataManager.getInstance().getQuestingData(player);
         if (!data.playedLore && SoundHandler.hasLoreMusic()) {
             SoundHandler.triggerFirstLore();
@@ -112,7 +110,6 @@ public class GuiQuestBook extends GuiBase {
     
     @Override
     public void removed() {
-        minecraft.keyboardHandler.setSendRepeatsToGui(false);
         SoundHandler.stopLoreMusic();
     }
     
@@ -125,66 +122,60 @@ public class GuiQuestBook extends GuiBase {
     }
     
     @Override
-    public void render(PoseStack matrices, int x0, int y0, float f) {
-        setBlitOffset(0);
-    
+    public void render(GuiGraphics guiGraphics, int x0, int y0, float f) {
         left = (width - TEXTURE_WIDTH) / 2;
         top = (height - TEXTURE_HEIGHT) / 2;
-        
+
         int x = x0 - left;
         int y = y0 - top;
-        
+
         applyColor(0xFFFFFFFF);
-        ResourceHelper.bindResource(BG_TEXTURE);
-        
-        drawRect(matrices, 0, 0, 0, 0, PAGE_WIDTH, TEXTURE_HEIGHT);
-        drawRect(matrices, PAGE_WIDTH, 0, 0, 0, PAGE_WIDTH, TEXTURE_HEIGHT, RenderRotation.FLIP_HORIZONTAL);
-        
+
+        drawRect(guiGraphics, BG_TEXTURE, 0, 0, 0, 0, PAGE_WIDTH, TEXTURE_HEIGHT);
+        drawRect(guiGraphics, BG_TEXTURE, PAGE_WIDTH, 0, 0, 0, PAGE_WIDTH, TEXTURE_HEIGHT, RenderRotation.FLIP_HORIZONTAL);
+
         if (Quest.canQuestsBeEdited()) {
             applyColor(0xFFFFFFFF);
             ResourceHelper.bindResource(MAP_TEXTURE);
-            SaveHelper.render(matrices, this, x, y);
+            SaveHelper.render(guiGraphics, this, x, y);
         }
-        
-        saveButton.render(matrices, x, y);
-        
+
+        saveButton.render(guiGraphics, x, y);
+
         applyColor(0xFFFFFFFF);
         ResourceHelper.bindResource(MAP_TEXTURE);
-        
-        
+
         if (shouldDisplayBackArrow()) {
-            drawRect(matrices, BACK_ARROW_X, BACK_ARROW_Y, BACK_ARROW_SRC_X + (inBackArrowBounds(x, y) ? BACK_ARROW_WIDTH : 0), BACK_ARROW_SRC_Y, BACK_ARROW_WIDTH, BACK_ARROW_HEIGHT);
+            drawRect(guiGraphics, BACK_ARROW_X, BACK_ARROW_Y, BACK_ARROW_SRC_X + (inBackArrowBounds(x, y) ? BACK_ARROW_WIDTH : 0), BACK_ARROW_SRC_Y, BACK_ARROW_WIDTH, BACK_ARROW_HEIGHT);
         }
         if (shouldDisplayMenuArrow()) {
-            drawRect(matrices, MENU_ARROW_X, MENU_ARROW_Y, MENU_ARROW_SRC_X + (inMenuArrowBounds(x, y) ? MENU_ARROW_WIDTH : 0), MENU_ARROW_SRC_Y, MENU_ARROW_WIDTH, MENU_ARROW_HEIGHT);
+            drawRect(guiGraphics, MENU_ARROW_X, MENU_ARROW_Y, MENU_ARROW_SRC_X + (inMenuArrowBounds(x, y) ? MENU_ARROW_WIDTH : 0), MENU_ARROW_SRC_Y, MENU_ARROW_WIDTH, MENU_ARROW_HEIGHT);
         }
-        
+
         if (editMenu == null) {
-    
-            pageGraphic.drawFull(matrices, x, y);
-    
+            pageGraphic.drawFull(guiGraphics, x, y);
+
             if (currentMode == EditMode.DELETE) {
-                matrices.pushPose();
-                matrices.translate(0, 0, 200);
-                drawCenteredString(matrices, Translator.translatable("hqm.questBook.warning"), 0, 0, 2F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0xFF0000);
-                drawCenteredString(matrices, Translator.translatable("hqm.questBook.deleteOnClick"), 0, font.lineHeight * 2, 1F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0xFF0000);
-                matrices.popPose();
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0, 0, 200);
+                drawCenteredString(guiGraphics, Translator.translatable("hqm.questBook.warning"), 0, 0, 2F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0xFF0000);
+                drawCenteredString(guiGraphics, Translator.translatable("hqm.questBook.deleteOnClick"), 0, font.lineHeight * 2, 1F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0xFF0000);
+                guiGraphics.pose().popPose();
             }
-    
         } else {
-            editMenu.drawFull(matrices, x, y);
+            editMenu.drawFull(guiGraphics, x, y);
         }
-    
-        saveButton.renderTooltip(matrices, x, y);
-        
+
+        saveButton.renderTooltip(guiGraphics, x, y);
+
         if (shouldDisplayBackArrow() && inBackArrowBounds(x, y)) {
-            renderTooltip(matrices, FormattedText.composite(
+            renderTooltip(guiGraphics, FormattedText.composite(
                     Translator.translatable("hqm.questBook.goBack"),
                     Translator.plain("\n"),
                     Translator.translatable("hqm.questBook.rightClick").withStyle(ChatFormatting.DARK_GRAY)
             ), x + left, y + top);
         } else if (shouldDisplayMenuArrow() && inMenuArrowBounds(x, y)) {
-            renderTooltip(matrices, Translator.translatable("hqm.questBook.backToMenu"), x + left, y + top);
+            renderTooltip(guiGraphics, Translator.translatable("hqm.questBook.backToMenu"), x + left, y + top);
         }
     }
     
@@ -304,14 +295,14 @@ public class GuiQuestBook extends GuiBase {
     }
     
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         double mX = mouseX - left;
         double mY = mouseY - top;
-        
+
         if (editMenu != null) {
-            editMenu.onScroll(mX, mY, scroll);
+            editMenu.onScroll(mX, mY, scrollY);
         } else {
-            pageGraphic.onScroll(mX, mY, scroll);
+            pageGraphic.onScroll(mX, mY, scrollY);
         }
         return true;
     }
