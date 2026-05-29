@@ -23,8 +23,13 @@ import hardcorequesting.common.reputation.ReputationManager;
 import hardcorequesting.common.reputation.ReputationMarker;
 import hardcorequesting.common.util.WrappedText;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.io.IOException;
@@ -67,27 +72,49 @@ public class QuestTaskAdapter {
     
         @Override
         public ItemRequirementTask.Part read(JsonReader in) throws IOException {
-            in.beginObject();
+            JsonElement element = Streams.parse(in);
+            if (!element.isJsonObject()) return null;
+            JsonObject obj = element.getAsJsonObject();
+
             ItemStack itemStack = ItemStack.EMPTY;
             FluidStack fluidVolume = null;
             int required = 1;
             ItemPrecision precision = ItemPrecision.PRECISE;
-            while (in.hasNext()) {
-                String next = in.nextName();
-                if (next.equalsIgnoreCase(ITEM)) {
-                    itemStack = MinecraftAdapter.ICON_ITEM_STACK.read(in);
-                } else if (next.equalsIgnoreCase(FLUID)) {
-                    fluidVolume = MinecraftAdapter.FLUID.read(in);
-                } else if (next.equalsIgnoreCase(REQUIRED)) {
-                    required = Math.max(in.nextInt(), required);
-                } else if (next.equalsIgnoreCase(PRECISION)) {
-                    ItemPrecision itemPrecision = ItemPrecision.getPrecisionType(in.nextString());
-                    if (itemPrecision != null) {
-                        precision = itemPrecision;
-                    }
+
+            if (obj.has(ITEM)) {
+                // Nested format: { "item": {"id": "...", "Count": N}, "required": N, "precision": "..." }
+                itemStack = MinecraftAdapter.ICON_ITEM_STACK.deserialize(obj.get(ITEM));
+            } else if (obj.has("id")) {
+                // Flat ItemStack format: { "id": "...", "Count": N, "precision": "..." }
+                JsonObject itemObj = new JsonObject();
+                itemObj.add("id", obj.get("id"));
+                if (obj.has("Count")) itemObj.add("Count", obj.get("Count"));
+                if (obj.has("tag")) itemObj.add("tag", obj.get("tag"));
+                itemStack = MinecraftAdapter.ICON_ITEM_STACK.deserialize(itemObj);
+            } else if (obj.has("tag")) {
+                // Tag format: { "tag": "namespace:path", "required": N, "precision": "..." }
+                // Resolves to the first item in the tag so HQM can display and track it.
+                String tagId = obj.get("tag").getAsString();
+                TagKey<Item> tagKey = TagKey.create(Registries.ITEM, ResourceLocation.parse(tagId));
+                itemStack = BuiltInRegistries.ITEM.getTag(tagKey)
+                        .flatMap(s -> s.stream().findFirst())
+                        .map(Holder::value)
+                        .map(ItemStack::new)
+                        .orElse(ItemStack.EMPTY);
+            } else if (obj.has(FLUID)) {
+                fluidVolume = MinecraftAdapter.FLUID.deserialize(obj.get(FLUID));
+            }
+
+            if (obj.has(REQUIRED)) {
+                required = Math.max(obj.get(REQUIRED).getAsInt(), required);
+            }
+            if (obj.has(PRECISION)) {
+                ItemPrecision itemPrecision = ItemPrecision.getPrecisionType(obj.get(PRECISION).getAsString());
+                if (itemPrecision != null) {
+                    precision = itemPrecision;
                 }
             }
-            in.endObject();
+
             ItemRequirementTask.Part result;
             if (!itemStack.isEmpty()) {
                 result = new ItemRequirementTask.Part(itemStack, required);
