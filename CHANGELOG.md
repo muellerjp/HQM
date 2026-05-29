@@ -4,6 +4,11 @@ All notable changes are documented here.
 ## [Unreleased]
 
 ### Bug Fixes
+- **release**: File versions and copypaste errors
+
+## [1.0.0] - 2026-05-29
+
+### Bug Fixes
 - **quest**: Updated questtaskadapter to account to allow item ids and tags
 
 
