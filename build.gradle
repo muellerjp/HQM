@@ -7,6 +7,12 @@ architectury {
     minecraft = rootProject.minecraft_version
 }
 
+def ciVersion = System.getenv('VERSION')
+version = (ciVersion?.trim()) ? "1.21.1-${ciVersion}" : "1.21.1-${rootProject.mod_version}"
+base {
+    archivesName = rootProject.archives_base_name
+}
+
 // neoforge uses net.neoforged.moddev instead of architectury-loom
 configure(subprojects.findAll { it.name != 'neoforge' }) {
     apply plugin: "dev.architectury.loom"
