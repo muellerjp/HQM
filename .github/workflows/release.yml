@@ -54,6 +54,8 @@ jobs:
           # modrinth-id: xxxxxxxx
           # modrinth-token: ${{ secrets.MODRINTH_API_KEY }}
 
+          files: neoforge/build/libs/!(*-sources|*-javadoc).jar
+
           github-tag: ${{ github.ref }}
           github-draft: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
