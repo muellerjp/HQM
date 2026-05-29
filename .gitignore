@@ -16,3 +16,5 @@ libs/
 .idea/
 .vscode/
 classes/
+docs/
+tools/
