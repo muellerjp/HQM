@@ -62,9 +62,19 @@ def depend(String string) {
 
 loom {
     accessWidenerPath = file("src/main/resources/hqm.accesswidener")
+
+    runs {
+        gametest {
+            server()
+            name "Game Test"
+            vmArg "-Dfabric-api.gametest"
+            vmArg "-Dfabric-api.gametest.report-file=${project.buildDir}/junit.xml"
+            runDir "build/gametest"
+        }
+    }
 }
 
-processResources {
+tasks.withType(ProcessResources).configureEach {
     inputs.property "version", project.version
 
     filesMatching("fabric.mod.json") {
@@ -96,19 +106,4 @@ sourcesJar {
     from commonSources.archiveFile.map { zipTree(it) }
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
-
-loom {
-    runs {
-        gametest {
-            server()
-            name "Game Test"
-            vmArg "-Dfabric-api.gametest"
-            vmArg "-Dfabric-api.gametest.report-file=${project.buildDir}/junit.xml"
-            runDir "build/gametest"
-        }
-    }
-}
 test.dependsOn runGametest

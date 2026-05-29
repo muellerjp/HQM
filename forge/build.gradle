@@ -27,7 +27,7 @@ dependencies {
     }
 }
 
-processResources {
+tasks.withType(ProcessResources).configureEach {
     inputs.property "version", project.version
 
     filesMatching("META-INF/mods.toml") {
@@ -37,7 +37,7 @@ processResources {
 
 shadowJar {
     relocate "hardcorequesting.common", "hardcorequesting.common.forge"
-configurations = [project.configurations.shadowCommon]
+    configurations = [project.configurations.shadowCommon]
     archiveClassifier = "dev-shadow"
 }
 

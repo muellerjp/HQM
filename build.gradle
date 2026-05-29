@@ -7,26 +7,6 @@ architectury {
     minecraft = rootProject.minecraft_version
 }
 
-def ciVersion = System.getenv('VERSION')
-version = (ciVersion?.trim()) ? "1.21.1-${ciVersion}" : "1.21.1-${rootProject.mod_version}"
-base {
-    archivesName = rootProject.archives_base_name
-}
-
-// neoforge uses net.neoforged.moddev instead of architectury-loom
-configure(subprojects.findAll { it.name != 'neoforge' }) {
-    apply plugin: "dev.architectury.loom"
-
-    loom {
-        silentMojangMappingsLicense()
-    }
-
-    dependencies {
-        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        mappings loom.officialMojangMappings()
-    }
-}
-
 allprojects {
     apply plugin: "java"
 
@@ -46,11 +26,31 @@ allprojects {
     }
 }
 
-configure(allprojects.findAll { it.name != 'neoforge' }) {
+def ciVersion = System.getenv('VERSION')
+version = (ciVersion?.trim()) ? "${rootProject.minecraft_version}-${ciVersion}" : "${rootProject.minecraft_version}-${rootProject.mod_version}"
+base {
+    archivesName = rootProject.archives_base_name
+}
+
+// neoforge uses net.neoforged.moddev instead of architectury-loom
+configure(subprojects.findAll { it.name != 'neoforge' }) {
+    apply plugin: "dev.architectury.loom"
+
+    loom {
+        silentMojangMappingsLicense()
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        mappings loom.officialMojangMappings()
+    }
+}
+
+configure(subprojects.findAll { it.name != 'neoforge' }) {
     apply plugin: "architectury-plugin"
 
-    archivesBaseName = project.archives_base_name
-    version = minecraft_version + "-" + project.mod_version
+    base { archivesName = project.archives_base_name }
+    version = rootProject.version
 }
 
 // Convenience root-level tasks that delegate to the active platform.
