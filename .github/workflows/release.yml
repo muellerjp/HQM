@@ -47,28 +47,28 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
 
-      - name: List build artifacts
-        run: ls -la build/libs/
+      - name: List neoforge build artifacts
+        run: ls -la neoforge/build/libs/
 
-      #- name: Publish to CurseForge and Modrinth
-      #  uses: Kir-Antipov/mc-publish@v3.3
-      #  with:
-      #    curseforge-id: 1557697
-      #    curseforge-token: ${{ secrets.CURSEFORGE_API_KEY }}
+      - name: Publish to CurseForge and Modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: 1557697
+          curseforge-token: ${{ secrets.CURSEFORGE_API_KEY }}
           # modrinth-id: xxxxxxxx
           # modrinth-token: ${{ secrets.MODRINTH_API_KEY }}
 
-          #files: neoforge/build/libs/!(*-sources|*-javadoc).jar
+          files: neoforge/build/libs/HQM-1.21.1-${{ steps.version.outputs.version }}.jar
 
-      #    github-tag: ${{ github.ref }}
-      #    github-draft: true
-      #    github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-tag: ${{ github.ref }}
+          github-draft: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      #    name: Hardcode Questing Mod ${{ steps.version.outputs.version }}
-      #    version: ${{ steps.version.outputs.version }}
-      #    java: 21
-      #    loaders: |
-      #      neoforge
-      #    game-versions: |
-      #      1.21.1
-      #    changelog-file: RELEASE_NOTES.md
+          name: Hardcode Questing Mod ${{ steps.version.outputs.version }}
+          version: ${{ steps.version.outputs.version }}
+          java: 21
+          loaders: |
+            neoforge
+          game-versions: |
+            1.21.1
+          changelog-file: RELEASE_NOTES.md
