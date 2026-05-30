@@ -4,6 +4,11 @@ All notable changes are documented here.
 ## [Unreleased]
 
 ### Bug Fixes
+- **release**: Fixing release pipeline and build
+
+## [1.0.5] - 2026-05-29
+
+### Bug Fixes
 - **release**: Pointing to the correct files
 
 ## [1.0.3] - 2026-05-29
