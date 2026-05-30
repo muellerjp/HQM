@@ -64,7 +64,7 @@ jobs:
           github-draft: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-          name: Hardcode Questing Mod ${{ steps.version.outputs.version }}
+          name: Hardcore Questing Mod ${{ steps.version.outputs.version }}
           version: ${{ steps.version.outputs.version }}
           java: 21
           loaders: |

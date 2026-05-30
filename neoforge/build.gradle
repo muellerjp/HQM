@@ -9,6 +9,17 @@ base {
     archivesName = rootProject.archives_base_name
 }
 
+// Embed the git commit hash so every tagged release produces a unique JAR binary.
+def gitHash = providers.exec {
+    commandLine 'git', 'rev-parse', '--short', 'HEAD'
+}.standardOutput.asText.map { it.trim() }
+
+tasks.withType(Jar).configureEach {
+    manifest {
+        attributes 'Git-Commit': gitHash
+    }
+}
+
 // Include sources from the common module directly via filesystem paths.
 // Using paths (not a project reference) so this subproject can be configured
 // alone without :common being included (i.e. when platform=neoforge).
