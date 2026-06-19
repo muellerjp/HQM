@@ -108,7 +108,7 @@ public class PickItemMenu<T> extends GuiEditMenu {
         if (amountInput) {
             addTextBox(new NumberTextBox(gui, 100, 18, FormattedText.EMPTY, () -> amount, value -> amount = Math.max(1, value)));
         }
-        addTextBox(new TextBox(gui, "", 230, 18, false) {
+        addTextBox(new TextBox(gui, "", 230, 18, true) {
             @Override
             public void textChanged() {
                 super.textChanged();

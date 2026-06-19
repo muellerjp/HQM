@@ -46,7 +46,7 @@ public class PickAdvancementMenu extends GuiEditMenu {
         addScrollBar(scrollBar = new ExtendedScrollBar<>(gui, ScrollBar.Size.LONG, 160, 18, START_X,
                 VISIBLE_MOBS, () -> PickAdvancementMenu.this.advancementNames));
         
-        addTextBox(new TextBox(gui, "", 250, 18, false) {
+        addTextBox(new TextBox(gui, "", 250, 18, true) {
             @Override
             public void textChanged() {
                 super.textChanged();
